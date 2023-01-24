@@ -22,7 +22,7 @@ object CarbonArrangementTest extends TestSuite {
     }
 
     test("test arrangement n=4 => C1,C2,C3,C4,C1C2,C2C3,C3C4,C1C2C3,C2C3C4,C1C2C3C4") {
-      assert(CarbonArrangement.get(4) == Seq(
+      assert(CarbonArrangement.getArrangements(4) == Seq(
         "C1","C2","C3","C4",
         "C1C2","C2C3","C3C4",
         "C1C2C3", "C2C3C4",
@@ -76,6 +76,14 @@ object CarbonArrangementTest extends TestSuite {
         IsocorValue("", "", "", "100", 2, Some(3), 0.4, experimental = true),
         IsocorValue("", "", "", "200", 5, Some(6), 0.55, experimental = true),
       ).isEmpty)
+    }
+
+    test("planning") {
+      CarbonArrangement.planning("C2C3C4")
+    }
+
+    test("planning") {
+      CarbonArrangement.planning("C1")
     }
 
   }

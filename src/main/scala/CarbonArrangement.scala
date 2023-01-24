@@ -18,7 +18,39 @@ case object CarbonArrangement {
   /*
       n : number total of Carbon
    */
-  def get(n: Int) : Seq[String] = 1.to(n).flatMap(iteration(_,n))
+  def getArrangements(n: Int) : Seq[String] = 1.to(n).flatMap(iteration(_,n))
+
+  /*
+      Execution plan to compute new value
+
+      C1C2C3
+
+      could provided with sum :
+        - C1 + C2 + C3
+        - C1C2 + C3
+        - C1 + C2C3
+
+      could provided with diff :
+        - C1C2C3C4 - C4
+        - C1C2C3C4C5 - C4C5
+        - ...
+   */
+
+  def planning(code : String) : Seq[String] = {
+    val pattern = "C([0-9])\\w*C([0-9])$".r
+    val pattern2 = "C([0-9])$".r
+
+    code match {
+      case pattern(firstCarbon, lastCarbon) =>
+        println(firstCarbon,lastCarbon)
+        println(iteration(firstCarbon.toInt,lastCarbon.toInt))
+
+      case pattern2(firstCarbon) =>println(firstCarbon)
+      case _ => println("KO")
+    }
+    Seq()
+  }
+
 
   /**
    * iso2 should be > than iso1
