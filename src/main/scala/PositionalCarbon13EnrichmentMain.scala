@@ -40,6 +40,7 @@ case object PositionalCarbon13EnrichmentMain extends App {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(config.isocorOutputFile.head)
     listMeanEnrichment
       .groupBy(x=> (x.sample, x.derivative,x.metabolite) )
+      .take(3) // debugging.....
       .foreach{
         case (k,listValues : Seq[IsocorValue]) if listValues.distinct.size>1 =>
           println(k, listValues.distinct.size)
@@ -51,7 +52,21 @@ case object PositionalCarbon13EnrichmentMain extends App {
                 case isocorVal => isocorVal.code-> (isocorVal.meanEnrichment,isocorVal.fragment)
               }.toMap
 
-          println(mapArrangementCarbon13)
+          // get the biggest Carbon to build in silico possibility
+          val maxC = mapArrangementCarbon13
+            .keys
+            .flatMap(CarbonArrangement.code2Indexes)
+            .maxBy(_._2)._2
+
+          val minC = mapArrangementCarbon13
+            .keys
+            .flatMap(CarbonArrangement.code2Indexes)
+            .minBy(_._1)._1
+
+          val plan = CarbonArrangement.planningComputedAdditionalValues(s"C${minC}C${maxC}")
+
+          println(mapArrangementCarbon13,minC,maxC)
+          println(plan)
         case (k,_) => //println(k," => only 1 value")
       }
 
