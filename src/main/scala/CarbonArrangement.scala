@@ -4,13 +4,14 @@ case object CarbonArrangement {
   /*
     p : size of Carbon arrangement
     n : number total of Carbon
+    startCarbonNum : when starting with carbon index != 1 example C3C4C5
    */
-  def iteration(p: Int,n : Int) : Seq[String] = {
+  def iteration(p: Int,n : Int,startCarbonNum : Int=1) : Seq[String] = {
     p.to(n)
       .zipWithIndex
       .map {
         case (_, idx) =>
-          1.to(p)
+          startCarbonNum.until(p+startCarbonNum)
             .foldLeft("")((acc, y) => s"${acc}C${idx + y}")
       }
   }
@@ -36,19 +37,78 @@ case object CarbonArrangement {
         - ...
    */
 
-  def planning(code : String) : Seq[String] = {
-    val pattern = "C([0-9])\\w*C([0-9])$".r
-    val pattern2 = "C([0-9])$".r
+
+  /**
+   * String code with carbon to internal structure
+   * - C1 => Some(1,1)
+   * - C1C4 => Some(1,4)
+   * - impossibles values (C1C0,...) => None
+   * @param code carbon code name
+   * @return an option of start and end index
+   */
+  def code2Indexes(code:String) : Option[(Int,Int)] = {
+    val pattern = "C(\\d{0,2})\\w*C(\\d{0,2})$".r
+    val pattern2 = "C(\\d+)$".r
+
+    //val pattern(firstCarbon) = code
 
     code match {
-      case pattern(firstCarbon, lastCarbon) =>
-        println(firstCarbon,lastCarbon)
-        println(iteration(firstCarbon.toInt,lastCarbon.toInt))
-
-      case pattern2(firstCarbon) =>println(firstCarbon)
-      case _ => println("KO")
+      case pattern(firstCarbon, lastCarbon) if (firstCarbon.toInt<lastCarbon.toInt) =>
+        Some(firstCarbon.toInt,lastCarbon.toInt)
+      case pattern2(firstCarbon) =>
+        Some(firstCarbon.toInt,firstCarbon.toInt)
+      case _ => None
     }
-    Seq()
+  }
+
+  /**
+   * From internal structure (start and end index of Carbon code) get a string carbon code
+   * - Some(1,1) => C1
+   * - Some(1,4) => C1C4
+   * - impossibles values => None
+   * @param indexes option of start and end index
+   * @return the carbon code
+   */
+  def indexes2code(indexes: Option[(Int,Int)]) : Option[String] = indexes match {
+    case Some((start,end)) if start>0 && start == end => Some(s"C$start")
+    case Some((start,end)) if start>0 && start < end => Some(s"C${start}C${end}")
+    case Some((start,end)) if start > end => None
+    case _ => None
+  }
+
+  def diffCode(code1 : String , code2 : String): Option[String] = {
+    (code2Indexes(code1),code2Indexes(code2)) match {
+      case (Some((s1,e1)),Some((s2,e2))) if (s1 == s2) && e1<=e2 => indexes2code( Some(e1+1,e2) )
+      case (Some((s1,e1)),Some((s2,e2))) if (s1 == s2) && e2<=e1 => indexes2code( Some(e2+1,e1) )
+      case (Some((s1,e1)),Some((s2,e2))) if (e1 == e2) && s1<=s2 => indexes2code( Some(e1+1,e2) )
+      case (Some((s1,e1)),Some((s2,e2))) if (e1 == e2) && s2<=s1 => indexes2code( Some(e2+1,e1) )
+      case _ => None
+    }
+  }
+
+  /**
+   * Get execution plan to build in silico value from experimental and computed fragment value
+   * planning("C1C4") => C1 + planning("C2C4")
+   * @param code
+   * @return
+   */
+  def planningComputedAdditionalValues(code : String) : Seq[Seq[String]] = {
+    code2Indexes(code) match {
+      case Some((first,last)) if first < last =>
+        1.to(last-first).
+          flatMap(
+          idx => iteration(idx,last-first+1,first)
+            .flatMap(left => diffCode(left,code) match {
+              case Some(right) =>
+                val v1 : Seq[Seq[String]] = planningComputedAdditionalValues(left)
+                val v2 : Seq[Seq[String]] = planningComputedAdditionalValues(right)
+                v2.distinct.map(left +: _) ++ v1.distinct.map(_ :+ right)
+              case None => None
+            })
+        ).distinct
+      case Some((first,last)) if first == last => Seq(Seq(s"C$first"))
+      case _ => Seq()
+    }
   }
 
 

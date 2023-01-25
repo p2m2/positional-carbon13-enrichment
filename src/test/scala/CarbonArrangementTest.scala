@@ -78,12 +78,48 @@ object CarbonArrangementTest extends TestSuite {
       ).isEmpty)
     }
 
-    test("planning") {
-      CarbonArrangement.planning("C2C3C4")
+    test("code2Indexes C1C5") {
+      assert(CarbonArrangement.code2Indexes("C1C5") == Some(1,5) )
     }
 
-    test("planning") {
-      CarbonArrangement.planning("C1")
+    test("code2Indexes C1C0") {
+      assert(CarbonArrangement.code2Indexes("C1C0").isEmpty)
+    }
+
+    test("code2Indexes C1C1") {
+      assert(CarbonArrangement.code2Indexes("C1C1").isEmpty)
+    }
+
+    test("code2Indexes C1C12") {
+      assert(CarbonArrangement.code2Indexes("C1C12")== Some(1,12))
+    }
+
+    test("code2Indexes C1") {
+      assert(CarbonArrangement.code2Indexes("C1") == Some(1,1))
+    }
+
+    test("indexes2code 1,1 => C1") {
+      assert(CarbonArrangement.indexes2code(Some(1, 1)).contains("C1"))
+    }
+
+    test("indexes2code 1,0 => None") {
+      assert(CarbonArrangement.indexes2code(Some(1, 0)).isEmpty)
+    }
+
+    test("indexes2code 1,4 => C1C4") {
+      assert(CarbonArrangement.indexes2code(Some(1, 4)).contains("C1C4"))
+    }
+
+    test("planning C1") {
+      assert(CarbonArrangement.planningComputedAdditionalValues("C1") == Seq(Seq("C1")))
+    }
+
+    test("planning C1C3") {
+      assert(CarbonArrangement.planningComputedAdditionalValues("C1C3").size>0)
+    }
+
+    test("planning C2C6 - 1394 arrangements") {
+      assert(CarbonArrangement.planningComputedAdditionalValues("C2C6").size == 14)
     }
 
   }
