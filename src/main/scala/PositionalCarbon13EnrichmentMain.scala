@@ -35,6 +35,7 @@ case object PositionalCarbon13EnrichmentMain extends App {
     // arguments are bad, error message will have been displayed
   }
 
+
   def process(config : Config) : Unit = {
     println("ok")
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(config.isocorOutputFile.head)
@@ -45,11 +46,11 @@ case object PositionalCarbon13EnrichmentMain extends App {
         case (k,listValues : Seq[IsocorValue]) if listValues.distinct.size>1 =>
           println(k, listValues.distinct.size)
           /* setting with experimental values     CX...CZ =>  value,FRAGMENT  ""*/
-          val mapArrangementCarbon13 : Map[String,(Double,String)]=
+          val mapArrangementCarbon13 : Map[String,Option[(Double,String)]]=
             listValues
               .distinct
               .map {
-                case isocorVal => isocorVal.code-> (isocorVal.meanEnrichment,isocorVal.fragment)
+                case isocorVal => isocorVal.code-> Some((isocorVal.meanEnrichment,isocorVal.fragment))
               }.toMap
 
           // get the biggest Carbon to build in silico possibility
@@ -63,7 +64,15 @@ case object PositionalCarbon13EnrichmentMain extends App {
             .flatMap(CarbonArrangement.code2Indexes)
             .minBy(_._1)._1
 
-          val plan = CarbonArrangement.planningComputedAdditionalValues(s"C${minC}C${maxC}")
+          val longestCodeCarbon = s"C${minC}C${maxC}"
+          val plan = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
+
+          /* Compute new values */
+          val workWithAllValues : Map[String,Option[(Double,String)]] = mapArrangementCarbon13 ++
+            plan.flatten.distinct.filter(! mapArrangementCarbon13.contains(_)).map( _ -> None)
+
+          println(workWithAllValues)
+          ComputeCarbonMeanEnrichment.computeValues(workWithAllValues,plan,longestCodeCarbon)
 
           println(mapArrangementCarbon13,minC,maxC)
           println(plan)

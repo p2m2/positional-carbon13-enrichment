@@ -12,7 +12,7 @@ case class IsocorValue(
                       ) {
 
   def code : String = carbonArrangementEnd match {
-    case Some(end) if end > carbonArrangementStart => carbonArrangementStart.to(end).map(x=>s"C$x").mkString("")
+    case Some(end) if end > carbonArrangementStart => s"C${carbonArrangementStart}C${end}"//carbonArrangementStart.to(end).map(x=>s"C$x").mkString("")
     case _ => s"C$carbonArrangementStart"
   }
 

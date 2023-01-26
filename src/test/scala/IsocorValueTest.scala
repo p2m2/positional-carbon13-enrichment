@@ -23,7 +23,7 @@ object IsocorValueTest extends TestSuite {
     }
 
     test("code 5") {
-      assert(IsocorValue("a", "b", "c", "d", 2, Some(6), 0.0,experimental = true).code == "C2C3C4C5C6")
+      assert(IsocorValue("a", "b", "c", "d", 2, Some(6), 0.0,experimental = true).code == "C2C6")
     }
   }
 
