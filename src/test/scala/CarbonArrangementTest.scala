@@ -29,6 +29,10 @@ object CarbonArrangementTest extends TestSuite {
         "C1C2C3C4"))
     }
 
+    test("diffMeanEnrichment C2_100 , C1C2 => C2_100") {
+      assert(CarbonArrangement.diffMeanEnrichment((0.55,2.0),Seq((0.4,1.0)),1) == 0.55 * 2 - 0.4)
+    }
+
     test("computeDiff C2_100 , C1C2 => C2_100") {
       assert(CarbonArrangement.computeDiff(
         IsocorValue("", "", "", "", 1, Some(2), 0.55, experimental = true),
@@ -48,6 +52,10 @@ object CarbonArrangementTest extends TestSuite {
         IsocorValue("", "", "", "200", 1, Some(2), 0.55, experimental = true),
         IsocorValue("", "", "", "100", 1, Some(2), 0.4, experimental = true))
         .isEmpty)
+    }
+
+    test("sumMeanEnrichment C1C2_200 , C3C4_100 => C1C2C3C4_200_100") {
+      assert(CarbonArrangement.sumMeanEnrichment( Seq((0.55,2.0),(0.4, 2.0)), 4) == ((2 * 0.4) + (0.55 * 2) ) / 4.0)
     }
 
     test("compute Add C1C2_200 , C3C4_100 => C1C2C3C4_200_100") {
