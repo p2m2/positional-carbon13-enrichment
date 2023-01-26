@@ -68,8 +68,8 @@ case object PositionalCarbon13EnrichmentMain extends App {
           val plan = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
 
           /* Compute new values */
-          val workWithAllValues : Map[String,Option[(Double,String)]] = mapArrangementCarbon13 ++
-            plan.flatten.distinct.filter(! mapArrangementCarbon13.contains(_)).map( _ -> None)
+          val workWithAllValues : Map[String,Seq[(Double,String)]] = Map()/*mapArrangementCarbon13 ++
+            plan.flatten.distinct.filter(! mapArrangementCarbon13.contains(_)).map( _ -> Seq())*/
 
           println(workWithAllValues)
           ComputeCarbonMeanEnrichment.computeValues(workWithAllValues,plan,longestCodeCarbon)
