@@ -29,10 +29,10 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
       val res = ComputeCarbonMeanEnrichment.computeValues(
         meanEnrichment =
           Seq(
-            "C1C2" -> Seq((0.5, "FRAG1")),
-            "C3" -> Seq((0.5, "FRAG1")),
-            "C1" -> Seq((0.5, "FRAG1")),
-            "C2C3" -> Seq((0.5, "FRAG1")),
+            "C1C2" -> Seq((0.5, Seq("FRAG1"))),
+            "C3" -> Seq((0.5, Seq("FRAG1"))),
+            "C1" -> Seq((0.5, Seq("FRAG1"))),
+            "C2C3" -> Seq((0.5, Seq("FRAG1"))),
             "C1C3" -> Seq()
           ).toMap,
         executionPlan =
@@ -51,11 +51,11 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
       val res = ComputeCarbonMeanEnrichment.computeValues(
         meanEnrichment =
           Seq(
-            "C1C2" -> Seq((0.5, "FRAG1")),
-            "C3" -> Seq((0.5, "FRAG1")),
+            "C1C2" -> Seq((0.5, Seq("FRAG1"))),
+            "C3" -> Seq((0.5, Seq("FRAG1"))),
             "C1" -> Seq(),
-            "C2C3" -> Seq((0.5, "FRAG1")),
-            "C1C3" -> Seq((0.5, "FRAG1"))
+            "C2C3" -> Seq((0.5, Seq("FRAG1"))),
+            "C1C3" -> Seq((0.5, Seq("FRAG1")))
           ).toMap,
         executionPlan =
           Seq(
@@ -63,6 +63,8 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
           ),
         longestCodeCarbon = "C1C3"
       )
+      println("========")
+      println(res)
       assert(res.contains("C1"))
       assert(res("C1").nonEmpty)
     }
@@ -74,8 +76,8 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
       // FRAG2, FRAG4
       val res = ComputeCarbonMeanEnrichment.listSumValuesPossibilities(
         Seq(
-          "C1C2" -> Seq((0.5, "FRAG1"), (0.5, "FRAG2")),
-          "C3" -> Seq((0.5, "FRAG3"), (0.5, "FRAG4"))
+          "C1C2" -> Seq((0.5, Seq("FRAG1")), (0.5, Seq("FRAG2"))),
+          "C3" -> Seq((0.5, Seq("FRAG3")), (0.5, Seq("FRAG4")))
         ).toMap
       )
       println(res)
@@ -87,8 +89,8 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
         "C1C2" -> Seq(),
         "C3" -> Seq(),
         "C1" -> Seq(),
-        "C2C3" -> Seq((0.5, "FRAG1"), (0.5, "FRAG2"), (0.5, "FRAG3")),
-        "C1C3" -> Seq((0.5, "FRAG1"), (0.5, "FRAG2"))
+        "C2C3" -> Seq((0.5, Seq("FRAG1")), (0.5, Seq("FRAG2")), (0.5, Seq("FRAG3"))),
+        "C1C3" -> Seq((0.5, Seq("FRAG1")), (0.5, Seq("FRAG2")))
       ).toMap
       val res = ComputeCarbonMeanEnrichment.computeValues(
         meanEnrichment = m,
@@ -119,8 +121,8 @@ object ComputeCarbonMeanEnrichmentTest extends TestSuite {
         "C1C2" -> Seq(),
         "C3" -> Seq(),
         "C1" -> Seq(),
-        "C2C3" -> Seq((0.5, "FRAG1"), (0.5, "FRAG2"), (0.5, "FRAG3")),
-        "C1C3" -> Seq((0.5, "FRAG1"), (0.5, "FRAG2"))
+        "C2C3" -> Seq((0.5, Seq("FRAG1")), (0.5, Seq("FRAG2")), (0.5, Seq("FRAG3"))),
+        "C1C3" -> Seq((0.5, Seq("FRAG1")), (0.5, Seq("FRAG2")))
       ).toMap
 
       val res = ComputeCarbonMeanEnrichment.computeValuesRecursive(
