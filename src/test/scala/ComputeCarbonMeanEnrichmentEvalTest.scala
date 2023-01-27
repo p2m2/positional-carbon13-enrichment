@@ -13,7 +13,10 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
 
       val res = ComputeCarbonMeanEnrichment.eval(m)
       println("== res ==")
-      ComputeCarbonMeanEnrichment.printRes(res)
+      ComputeCarbonMeanEnrichment.printRes2(res)
+      val res2 = ComputeCarbonMeanEnrichment.eval(res)
+      println("== res 2==")
+      ComputeCarbonMeanEnrichment.printRes2(res2)
     }
   }
 }

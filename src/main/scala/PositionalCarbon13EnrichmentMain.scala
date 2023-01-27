@@ -72,7 +72,7 @@ case object PositionalCarbon13EnrichmentMain extends App {
             mapArrangementCarbon13
 
           println(workWithAllValues)
-          ComputeCarbonMeanEnrichment.computeValues(workWithAllValues,plan,longestCodeCarbon)
+          ComputeCarbonMeanEnrichment.eval(workWithAllValues)
 
           println(mapArrangementCarbon13,minC,maxC)
           println(plan)
