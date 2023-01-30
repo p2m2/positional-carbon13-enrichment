@@ -4,6 +4,31 @@ import utest.{TestSuite, Tests, test}
 
 object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
   def tests: Tests = Tests {
+    /*
+    test("eval ex1 Alanine 2TMS") {
+      val m = Seq(
+        "C1" -> Seq((0.45, Seq())),
+        "C2" -> Seq((0.55, Seq()))
+      ).toMap
+
+      val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
+      println("== res ==")
+      ComputeCarbonMeanEnrichment.printRes(res)
+    }
+
+    test("eval ex1 Alanine 2TMS") {
+      val m = Seq(
+        "C1" -> Seq((0.45, Seq())),
+        "C1C2" -> Seq((0.5, Seq()))
+      ).toMap
+
+      val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
+      println("== res ==")
+      ComputeCarbonMeanEnrichment.printRes(res)
+    }
+*/
     test("eval ex1 Alanine 2TMS") {
       val m = Seq(
         "C1" -> Seq((0.45, Seq())),
@@ -11,12 +36,20 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
         "C2C3" -> Seq((0.46, Seq("116")), (0.48, Seq("190")), (0.42, Seq("290"))),
       ).toMap
 
-      val res = ComputeCarbonMeanEnrichment.eval(m)
+      val (l,p,r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r,p,l)
       println("== res ==")
-      ComputeCarbonMeanEnrichment.printRes2(res)
-      val res2 = ComputeCarbonMeanEnrichment.eval(res)
+      ComputeCarbonMeanEnrichment.printRes(res)
+
+      val res2 = ComputeCarbonMeanEnrichment.computeValues(res,p,l)
       println("== res 2==")
-      ComputeCarbonMeanEnrichment.printRes2(res2)
+      ComputeCarbonMeanEnrichment.printRes(res2)
+      /*
+
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res2, p, l)
+      println("== res 2==")
+      ComputeCarbonMeanEnrichment.printRes(res2)
+      println(res2==res3)*/
     }
   }
 }

@@ -97,23 +97,25 @@ case object CarbonArrangement {
    * @param code
    * @return
    */
-  def planningComputedAdditionalValues(code : String) : Seq[Seq[String]] = {
-    code2Indexes(code) match {
+  def planningComputedAdditionalValues(code : String) : Seq[(String,Seq[String])] = {
+    (code2Indexes(code) match {
       case Some((first,last)) if first < last =>
         1.to(last-first).
           flatMap(
           idx => iteration(idx,last-first+1,first)
             .flatMap(left => diffCode(left,code) match {
               case Some(right) =>
-                val v1 : Seq[Seq[String]] = planningComputedAdditionalValues(left)
-                val v2 : Seq[Seq[String]] = planningComputedAdditionalValues(right)
-                v2.distinct.map(left +: _) ++ v1.distinct.map(_ :+ right)
+                val v1 : Seq[(String,Seq[String])] = planningComputedAdditionalValues(left)
+                val v2 : Seq[(String,Seq[String])]  = planningComputedAdditionalValues(right)
+                val r1 : Seq[(String,Seq[String])]  = v2.map( x => (code,left +: x._2))
+                val r2 : Seq[(String,Seq[String])]  = v1.map( x => (code,x._2 :+ right))
+                r1++r2 ++ v1 ++ v2
               case None => None
             })
-        ).distinct
-      case Some((first,last)) if first == last => Seq(Seq(s"C$first"))
+        )
+      case Some((first,last)) if first == last => Seq( (code , Seq(s"C$first")))
       case _ => Seq()
-    }
+    }).distinct
   }
 
 
@@ -139,7 +141,7 @@ case object CarbonArrangement {
   def sumMeanEnrichment(isos: Seq[(Double,Double)], nbCarbon : Double): Double =
     isos.map( iso => iso._1 * iso._2 ).sum / nbCarbon
   def diffMeanEnrichment(isoSum : (Double,Double),isos: Seq[(Double,Double)], nbCarbon : Double): Double =
-    ((isoSum._1*isoSum._2) - (isos.map( iso => iso._1 * iso._2 ).sum)) / nbCarbon
+    ((isoSum._1*isoSum._2) - (isos.map( iso => iso._1 * iso._2 ).sum))// / nbCarbon
 
   def fragment(frag1 : String, frag2 : String) : String =  (frag1,frag2) match {
     case (frag1,frag2) if frag1.nonEmpty && frag2.nonEmpty => frag1+"_"+frag2
