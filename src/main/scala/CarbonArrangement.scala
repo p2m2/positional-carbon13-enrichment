@@ -109,7 +109,8 @@ case object CarbonArrangement {
                 val v2 : Seq[(String,Seq[String])]  = planningComputedAdditionalValues(right)
                 val r1 : Seq[(String,Seq[String])]  = v2.map( x => (code,left +: x._2))
                 val r2 : Seq[(String,Seq[String])]  = v1.map( x => (code,x._2 :+ right))
-                r1++r2 ++ v1 ++ v2
+
+                r1++r2 //++ v1 ++ v2
               case None => None
             })
         )

@@ -37,19 +37,25 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
       ).toMap
 
       val (l,p,r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+
+      println("================================ STEP 0 ==")
+
+      println("========================== EXECUTION PLAN ================================")
+      println(p.map( x => x._1+"::"+x._2.mkString(",")).mkString("\n"))
+      ComputeCarbonMeanEnrichment.printRes(r)
+
       val res = ComputeCarbonMeanEnrichment.computeValues(r,p,l)
-      println("== res ==")
+      println("================================ STEP 1 ==")
       ComputeCarbonMeanEnrichment.printRes(res)
 
       val res2 = ComputeCarbonMeanEnrichment.computeValues(res,p,l)
-      println("== res 2==")
+      println("================================ STEP 2 ==")
       ComputeCarbonMeanEnrichment.printRes(res2)
-      /*
 
       val res3 = ComputeCarbonMeanEnrichment.computeValues(res2, p, l)
-      println("== res 2==")
-      ComputeCarbonMeanEnrichment.printRes(res2)
-      println(res2==res3)*/
+      println("== res 3==")
+      ComputeCarbonMeanEnrichment.printRes(res3)
+      println(res2==res3)
     }
   }
 }
