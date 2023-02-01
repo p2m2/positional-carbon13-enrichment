@@ -1,8 +1,6 @@
 package fr.inrae.p2m2.tools
 
-import utest.{TestSuite, Tests, test}
-
-import scala.collection.immutable.Seq
+import utest.{TestSuite, Tests}
 
 object ComputeCarbonMeanEnrichmentTest extends TestSuite {
   def tests: Tests = Tests {

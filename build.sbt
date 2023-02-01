@@ -15,19 +15,11 @@ ThisBuild / developers := List(
   Developer("ofilangi", "Olivier Filangi", "olivier.filangi@inrae.fr",url("https://github.com/ofilangi"))
 )
 
-
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin)
+  .aggregate(positionalCarbonSources.js, positionalCarbonSources.jvm)
   .settings(
     name := "positional-carbon13-enrichment",
     version := "0.1.0-SNAPSHOT",
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "fr.inrae.p2m2.build",
-    idePackagePrefix := Some("fr.inrae.p2m2.tools"),
-    libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "4.1.0",
-      "com.lihaoyi" %% "utest" % "0.8.1" % Test,
-    ),
     publishTo := {
       if (isSnapshot.value)
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots")
@@ -45,8 +37,56 @@ lazy val root = (project in file("."))
     coverageMinimumStmtPerFile := 70,
     coverageMinimumBranchPerFile := 30,
     coverageFailOnMinimum := true,
-    coverageHighlighting := true,
-    testFrameworks += new TestFramework("utest.runner.Framework"),
-    assembly / target := file("assembly"),
-    assembly / assemblyJarName := s"${name.value}-${version.value}.jar",
+    coverageHighlighting := true
   )
+
+// Project containing source code shared between the JS and JVM projects.
+// This project should never be compiled or packages but is simply an IntelliJ IDEA
+// friendly alternative to a shared code directory. Projects depending on this
+// projects source code should declare a dependency as 'Provided' AND append
+// this projects source directory manually to 'unmanagedSourceDirectories'.
+lazy val PositionalCarbon13EnrichmentShared = project.in(file("shared"))
+
+lazy val PositionalCarbon13EnrichmentSharedSettings = Seq(
+  name := "foo",
+  version := "0.1-SNAPSHOT",
+  // NOTE: The following line will generate a warning in IntelliJ IDEA, which can be ignored:
+  // "The following source roots are outside the corresponding base directories"
+  Compile / unmanagedSourceDirectories += ( (PositionalCarbon13EnrichmentShared / Compile) / scalaSource).value
+)
+
+
+lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file(".")).
+  settings(
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "utest" % "0.8.1" % Test
+    ),
+    testFrameworks += new TestFramework("utest.runner.Framework")
+  ).
+  jvmSettings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "utest" % "0.8.1" % Test,
+      "com.github.scopt" %% "scopt" % "4.1.0"
+    ),
+
+   // Compile / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"main"/"scala",
+   // Test / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"test"/"scala",
+
+    Compile / mainClass := Some("fr.inrae.p2m2.app.PositionalCarbon13EnrichmentMain") ,
+    assembly / target := file("assembly"),
+    assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
+  )
+  .enablePlugins(BuildInfoPlugin)
+  .jsSettings(
+    // Add JS-specific settings here
+    scalaJSUseMainModuleInitializer := true,
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
+      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+      "com.lihaoyi" %%% "scalatags" % "0.12.0"
+    )
+  )
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
