@@ -16,27 +16,16 @@ ThisBuild / developers := List(
 )
 
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(ScalaJSPlugin)
+  .aggregate(positionalCarbonSources.js, positionalCarbonSources.jvm)
   .settings(
     name := "positional-carbon13-enrichment",
     version := "0.1.0-SNAPSHOT",
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    //buildInfoPackage := "fr.inrae.p2m2.build",
-   // idePackagePrefix := Some("fr.inrae.p2m2.tools"),
-    libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
-      "com.github.scopt" %%% "scopt" % "4.1.0",
-      "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
-    ),
     publishTo := {
       if (isSnapshot.value)
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots")
       else
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    scalaJSUseMainModuleInitializer := true,
-    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
     pomIncludeRepository := { _ => false },
@@ -48,10 +37,36 @@ lazy val root = (project in file("."))
     coverageMinimumStmtPerFile := 70,
     coverageMinimumBranchPerFile := 30,
     coverageFailOnMinimum := true,
-    coverageHighlighting := true,
-    testFrameworks += new TestFramework("utest.runner.Framework"),
+    coverageHighlighting := true
+  )
+
+lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file(".")).
+  settings(
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "utest" % "0.8.1" % Test
+    ),
+    testFrameworks += new TestFramework("utest.runner.Framework")
+  ).
+  jvmSettings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "utest" % "0.8.1" % Test,
+      "com.github.scopt" %% "scopt" % "4.1.0"
+    ),
+
+    Compile / mainClass := Some("fr.inrae.p2m2.app.PositionalCarbon13EnrichmentMain") ,
     assembly / target := file("assembly"),
-    assembly / assemblyJarName := s"${name.value}-${version.value}.jar",
+    assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
+  ).enablePlugins(BuildInfoPlugin).
+  jsSettings(
+    // Add JS-specific settings here
+    scalaJSUseMainModuleInitializer := true,
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
+      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+      "com.lihaoyi" %%% "scalatags" % "0.12.0"
+    )
   )
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
