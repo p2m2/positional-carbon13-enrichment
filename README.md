@@ -11,15 +11,16 @@ runMain fr.inrae.p2m2.tools.PositionalCarbon13EnrichmentMain src/test/resources/
 ```
 
 ### test app
-``` 
+
+```bash
 sbt positionalCarbonSourcesJVM/test
 sbt positionalCarbonSourcesJS/test
 ```
 
 ### command line
 
-``` 
-sbt positionalCarbonSourcesJVM/run
+```shell
+sbt positionalCarbonSourcesJVM/run jvm/src/test/resources/galaxy430_res.tsv
 ```
 
 ### jar
@@ -27,3 +28,11 @@ sbt positionalCarbonSourcesJVM/run
 ``` 
 sbt positionalCarbonSourcesJVM/assembly
 ```
+
+### Html
+
+```shell 
+sbt fastLinkJS 
+```
+
+open [index](./html/index.html)

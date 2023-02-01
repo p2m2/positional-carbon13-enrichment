@@ -30,8 +30,11 @@ case object IsocorReader {
      return Seq[IsocorValue]
    */
   def getMeanEnrichmentByFragment(content : String): Seq[IsocorValue] = {
+    println("===========================")
 
-    val lines= content.split("\n")
+
+    val lines= content.trim.split("\n")
+    println(lines(0))
     val header: Map[String, Int] =
       lines(0)
         .split("[ ;\t]")
@@ -40,6 +43,8 @@ case object IsocorReader {
         .map { case (title, idx) => title -> idx }
         .toMap
 
+    if( Seq("sample", "metabolite", "derivative", "mean_enrichment").map(header.contains).exists(!_) )
+      throw new IllegalArgumentException("Can not find header: sample metabolite derivative mean_enrichment")
 
     val listEntries: Seq[IsocorValue] =
       lines.slice(1,lines.length)

@@ -40,6 +40,22 @@ lazy val root = (project in file("."))
     coverageHighlighting := true
   )
 
+// Project containing source code shared between the JS and JVM projects.
+// This project should never be compiled or packages but is simply an IntelliJ IDEA
+// friendly alternative to a shared code directory. Projects depending on this
+// projects source code should declare a dependency as 'Provided' AND append
+// this projects source directory manually to 'unmanagedSourceDirectories'.
+lazy val PositionalCarbon13EnrichmentShared = project.in(file("shared"))
+
+lazy val PositionalCarbon13EnrichmentSharedSettings = Seq(
+  name := "foo",
+  version := "0.1-SNAPSHOT",
+  // NOTE: The following line will generate a warning in IntelliJ IDEA, which can be ignored:
+  // "The following source roots are outside the corresponding base directories"
+  Compile / unmanagedSourceDirectories += ( (PositionalCarbon13EnrichmentShared / Compile) / scalaSource).value
+)
+
+
 lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
     libraryDependencies ++= Seq(
@@ -54,11 +70,15 @@ lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file
       "com.github.scopt" %% "scopt" % "4.1.0"
     ),
 
+   // Compile / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"main"/"scala",
+   // Test / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"test"/"scala",
+
     Compile / mainClass := Some("fr.inrae.p2m2.app.PositionalCarbon13EnrichmentMain") ,
     assembly / target := file("assembly"),
     assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
-  ).enablePlugins(BuildInfoPlugin).
-  jsSettings(
+  )
+  .enablePlugins(BuildInfoPlugin)
+  .jsSettings(
     // Add JS-specific settings here
     scalaJSUseMainModuleInitializer := true,
     jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
