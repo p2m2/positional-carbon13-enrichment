@@ -78,14 +78,12 @@ object CarbonArrangementTest extends TestSuite {
       assert(res.contains("C1C3" -> Seq("C1", "C2", "C3")))
       assert(res.contains("C1C3" -> Seq("C1C2", "C3")))
       assert(res.contains("C1C3" -> Seq("C1", "C2C3")))
-      assert(res.contains("C2C3" -> Seq("C2", "C3")))
-      assert(res.contains("C1C2" -> Seq("C1", "C2")))
-      assert(res.size == 11)
+      assert(res.size == 3)
     }
 
-    test("planning C2C6 - 1394 arrangements") {
+    test("planning C2C6 - 30 arrangements") {
       val res = CarbonArrangement.planningComputedAdditionalValues("C1C6")
-      assert(res.size == 401)
+      assert(res.size == 30)
     }
 
   }

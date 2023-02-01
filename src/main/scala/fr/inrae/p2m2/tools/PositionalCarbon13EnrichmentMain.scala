@@ -1,84 +1,61 @@
 package fr.inrae.p2m2.tools
 
-import buildinfo.BuildInfo
+import org.scalajs.dom
+import org.scalajs.dom.{Blob}
 
-import java.io.File
+object PositionalCarbon13EnrichmentMain {
+  def main(args: Array[String]): Unit = {
 
-case object PositionalCarbon13EnrichmentMain extends App {
+      println("ok")
+      val reader = new dom.FileReader()
+      reader.readAsText(args(0).asInstanceOf[Blob])
+      reader.onload = (_) => {
+        val contents = reader.result.asInstanceOf[String]
 
-  import scopt.OParser
+        val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(contents)
+        listMeanEnrichment
+          .groupBy(x => (x.sample, x.derivative, x.metabolite))
+          .take(3) // debugging.....
+          .foreach {
+            case (k, listValues: Seq[IsocorValue]) if listValues.distinct.size > 1 =>
+              println(k, listValues.distinct.size)
+              /* setting with experimental values     CX...CZ =>  value,FRAGMENT  ""*/
+              val mapArrangementCarbon13: Map[String, Seq[(Double, Seq[String])]] =
+                listValues
+                  .distinct
+                  .map {
+                    case isocorVal => isocorVal.code -> Seq((isocorVal.meanEnrichment, Seq(isocorVal.fragment)))
+                  }.toMap
 
-  case class Config(
-                     isocorOutputFile: Seq[File] = Seq()
-                   )
+              // get the biggest Carbon to build in silico possibility
+              val maxC = mapArrangementCarbon13
+                .keys
+                .flatMap(CarbonArrangement.code2Indexes)
+                .maxBy(_._2)._2
 
-  val builder = OParser.builder[Config]
-  val parser1 = {
-    import builder._
-    OParser.sequence(
-      programName(BuildInfo.name),
-      head(BuildInfo.name, BuildInfo.version),
-      arg[File]("<file>...")
-        .unbounded()
-        .action((x, c) => c.copy(isocorOutputFile = c.isocorOutputFile :+ x)),
-      help("help").text("prints this usage text"),
-      note("some notes." + sys.props("line.separator")),
-      checkConfig(_ => success)
-    )
-  }
+              val minC = mapArrangementCarbon13
+                .keys
+                .flatMap(CarbonArrangement.code2Indexes)
+                .minBy(_._1)._1
 
-  OParser.parse(parser1, args, Config()) match {
-    case Some(config) =>
-      process(config)
-    // do something
-    case _ => System.err.println("Ko")
-    // arguments are bad, error message will have been displayed
-  }
+              val longestCodeCarbon = s"C${minC}C${maxC}"
+              val plan = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
+
+              /* Compute new values */
+              val workWithAllValues: Map[String, Seq[(Double, Seq[String])]] =
+                mapArrangementCarbon13
+
+              println(workWithAllValues)
+              val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(workWithAllValues)
+              val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
+
+              println(mapArrangementCarbon13, minC, maxC)
+              println(plan)
+            case (k, _) => //println(k," => only 1 value")
+          }
 
 
-  def process(config: Config): Unit = {
-    println("ok")
-    val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(config.isocorOutputFile.head)
-    listMeanEnrichment
-      .groupBy(x => (x.sample, x.derivative, x.metabolite))
-      .take(3) // debugging.....
-      .foreach {
-        case (k, listValues: Seq[IsocorValue]) if listValues.distinct.size > 1 =>
-          println(k, listValues.distinct.size)
-          /* setting with experimental values     CX...CZ =>  value,FRAGMENT  ""*/
-          val mapArrangementCarbon13: Map[String, Seq[(Double, Seq[String])]] =
-            listValues
-              .distinct
-              .map {
-                case isocorVal => isocorVal.code -> Seq((isocorVal.meanEnrichment, Seq(isocorVal.fragment)))
-              }.toMap
-
-          // get the biggest Carbon to build in silico possibility
-          val maxC = mapArrangementCarbon13
-            .keys
-            .flatMap(CarbonArrangement.code2Indexes)
-            .maxBy(_._2)._2
-
-          val minC = mapArrangementCarbon13
-            .keys
-            .flatMap(CarbonArrangement.code2Indexes)
-            .minBy(_._1)._1
-
-          val longestCodeCarbon = s"C${minC}C${maxC}"
-          val plan = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
-
-          /* Compute new values */
-          val workWithAllValues: Map[String, Seq[(Double, Seq[String])]] =
-            mapArrangementCarbon13
-
-          println(workWithAllValues)
-          val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(workWithAllValues)
-          val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
-
-          println(mapArrangementCarbon13, minC, maxC)
-          println(plan)
-        case (k, _) => //println(k," => only 1 value")
+        dom.console.log(contents)
       }
-
   }
 }

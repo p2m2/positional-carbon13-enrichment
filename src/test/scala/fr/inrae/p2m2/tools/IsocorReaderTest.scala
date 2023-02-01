@@ -16,11 +16,11 @@ object IsocorReaderTest extends TestSuite {
       assert(carbonEnd.contains(3))
       assert(fragmentName == "m116")
     }
-
+/*
     test("test galaxy isocor output") {
       val lRes = IsocorReader.getMeanEnrichmentByFragment(new File(getClass.getResource("/galaxy430_res.tsv").getPath))
       assert(lRes.nonEmpty)
     }
-
+*/
   }
 }

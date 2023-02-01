@@ -29,13 +29,11 @@ case object IsocorReader {
 
      return Seq[IsocorValue]
    */
-  def getMeanEnrichmentByFragment(f: File): Seq[IsocorValue] = {
-    val source = Source.fromFile(f)
+  def getMeanEnrichmentByFragment(content : String): Seq[IsocorValue] = {
 
+    val lines= content.split("\n")
     val header: Map[String, Int] =
-      source
-        .getLines()
-        .next()
+      lines(0)
         .split("[ ;\t]")
         .toSeq
         .zipWithIndex
@@ -43,8 +41,8 @@ case object IsocorReader {
         .toMap
 
 
-    val listEntries: Seq[IsocorValue] = source
-      .getLines()
+    val listEntries: Seq[IsocorValue] =
+      lines.slice(1,lines.length)
       .flatMap(
         f = line => {
           val res = line
@@ -69,7 +67,6 @@ case object IsocorReader {
         }
       ).toSeq
 
-    source.close()
     listEntries
   }
 }

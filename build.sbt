@@ -25,8 +25,9 @@ lazy val root = (project in file("."))
     //buildInfoPackage := "fr.inrae.p2m2.build",
    // idePackagePrefix := Some("fr.inrae.p2m2.tools"),
     libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "4.1.0",
-      "com.lihaoyi" %% "utest" % "0.8.1" % Test,
+      "org.scala-js" %%% "scalajs-dom" % "2.1.0",
+      "com.github.scopt" %%% "scopt" % "4.1.0",
+      "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
     ),
     publishTo := {
       if (isSnapshot.value)
@@ -35,6 +36,7 @@ lazy val root = (project in file("."))
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
     scalaJSUseMainModuleInitializer := true,
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
     pomIncludeRepository := { _ => false },
@@ -51,3 +53,5 @@ lazy val root = (project in file("."))
     assembly / target := file("assembly"),
     assembly / assemblyJarName := s"${name.value}-${version.value}.jar",
   )
+
+Global / onChangedBuildSource := ReloadOnSourceChanges

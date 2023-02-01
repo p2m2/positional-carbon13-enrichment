@@ -13,8 +13,10 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
 
       val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
       val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
-      println("== res ==")
       ComputeCarbonMeanEnrichment.printRes(res)
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p, l)
+      // stabilité avec 1 iteration
+      assert(res==res3)
     }
 
     test("eval ex1 Alanine 2TMS") {
@@ -27,6 +29,9 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
       val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
       println("== res ==")
       ComputeCarbonMeanEnrichment.printRes(res)
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p, l)
+      // stabilité avec 1 iteration
+      assert(res == res3)
     }
 
     test("eval ex1 Alanine 2TMS") {
