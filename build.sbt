@@ -20,6 +20,21 @@ lazy val root = (project in file("."))
   .settings(
     name := "positional-carbon13-enrichment",
     version := "0.1.0-SNAPSHOT",
+    credentials += {
+
+      val realm = scala.util.Properties.envOrElse("REALM_CREDENTIAL", "")
+      val host = scala.util.Properties.envOrElse("HOST_CREDENTIAL", "")
+      val login = scala.util.Properties.envOrElse("LOGIN_CREDENTIAL", "")
+      val pass = scala.util.Properties.envOrElse("PASSWORD_CREDENTIAL", "")
+
+      val file_credential = Path.userHome / ".sbt" / ".credentials"
+
+      if (reflect.io.File(file_credential).exists) {
+        Credentials(file_credential)
+      } else {
+        Credentials(realm, host, login, pass)
+      }
+    },
     publishTo := {
       if (isSnapshot.value)
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/content/repositories/snapshots")
