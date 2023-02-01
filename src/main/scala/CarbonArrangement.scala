@@ -142,7 +142,7 @@ case object CarbonArrangement {
   def sumMeanEnrichment(isos: Seq[(Double,Double)], nbCarbon : Double): Double =
     isos.map( iso => iso._1 * iso._2 ).sum / nbCarbon
   def diffMeanEnrichment(isoSum : (Double,Double),isos: Seq[(Double,Double)], nbCarbon : Double): Double =
-    ((isoSum._1*isoSum._2) - (isos.map( iso => iso._1 * iso._2 ).sum))// / nbCarbon
+    ((isoSum._1*isoSum._2) - (isos.map( iso => iso._1 * iso._2 ).sum)) / nbCarbon
 
   def fragment(frag1 : String, frag2 : String) : String =  (frag1,frag2) match {
     case (frag1,frag2) if frag1.nonEmpty && frag2.nonEmpty => frag1+"_"+frag2
