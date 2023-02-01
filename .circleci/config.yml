@@ -24,31 +24,6 @@ workflows:
       - test:
           context:
             - DOCKER_CONTEXT
-      - publish_snapshot:
-          requires:
-            - test
-          context:
-            - DOCKER_CONTEXT
-            - CREDENTIAL_CONTEXT
-            - GPG_CONTEXT
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only:
-                - develop
-                - main
-                - master
-      - publish_tag_to_sonatype_stagge_for_release:
-          context:
-            - DOCKER_CONTEXT
-            - CREDENTIAL_CONTEXT
-            - GPG_CONTEXT
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
 
 executors:
 
@@ -77,39 +52,3 @@ jobs:
       - run:
           name: Compile - JVM
           command: cat /dev/null | sbt positionalCarbonSourcesJVM/test
-
-  publish_snapshot:
-    executor: openjdk
-    steps:
-      - checkout
-      - setup_remote_docker
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - run:
-          name: Snapshot publication
-          command: |
-            export PROG_VERSION="${CIRCLE_BRANCH}-SNAPSHOT"
-            echo "Importing key"
-            echo -e "$GPG_KEY" | gpg --import
-            sbt publish
-
-  publish_tag_to_sonatype_stagge_for_release:
-    executor: openjdk
-    steps:
-      - checkout
-      - setup_remote_docker
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "build.sbt" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-      - run:
-          name: Snapshot publication
-          command: |
-            export PROG_VERSION="${CIRCLE_TAG}"
-            echo "Importing key"
-            echo -e "$GPG_KEY" | gpg --import
-            sbt publish
