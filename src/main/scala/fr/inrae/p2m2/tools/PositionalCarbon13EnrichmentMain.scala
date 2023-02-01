@@ -1,6 +1,6 @@
 package fr.inrae.p2m2.tools
 
-import fr.inrae.p2m2.build.BuildInfo
+import buildinfo.BuildInfo
 
 import java.io.File
 
@@ -36,21 +36,21 @@ case object PositionalCarbon13EnrichmentMain extends App {
   }
 
 
-  def process(config : Config) : Unit = {
+  def process(config: Config): Unit = {
     println("ok")
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(config.isocorOutputFile.head)
     listMeanEnrichment
-      .groupBy(x=> (x.sample, x.derivative,x.metabolite) )
+      .groupBy(x => (x.sample, x.derivative, x.metabolite))
       .take(3) // debugging.....
-      .foreach{
-        case (k,listValues : Seq[IsocorValue]) if listValues.distinct.size>1 =>
+      .foreach {
+        case (k, listValues: Seq[IsocorValue]) if listValues.distinct.size > 1 =>
           println(k, listValues.distinct.size)
           /* setting with experimental values     CX...CZ =>  value,FRAGMENT  ""*/
-          val mapArrangementCarbon13 : Map[String,Seq[(Double,Seq[String])]]=
+          val mapArrangementCarbon13: Map[String, Seq[(Double, Seq[String])]] =
             listValues
               .distinct
               .map {
-                case isocorVal => isocorVal.code-> Seq((isocorVal.meanEnrichment,Seq(isocorVal.fragment)))
+                case isocorVal => isocorVal.code -> Seq((isocorVal.meanEnrichment, Seq(isocorVal.fragment)))
               }.toMap
 
           // get the biggest Carbon to build in silico possibility
@@ -68,16 +68,16 @@ case object PositionalCarbon13EnrichmentMain extends App {
           val plan = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
 
           /* Compute new values */
-          val workWithAllValues : Map[String,Seq[(Double,Seq[String])]] =
+          val workWithAllValues: Map[String, Seq[(Double, Seq[String])]] =
             mapArrangementCarbon13
 
           println(workWithAllValues)
           val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(workWithAllValues)
           val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
 
-          println(mapArrangementCarbon13,minC,maxC)
+          println(mapArrangementCarbon13, minC, maxC)
           println(plan)
-        case (k,_) => //println(k," => only 1 value")
+        case (k, _) => //println(k," => only 1 value")
       }
 
   }

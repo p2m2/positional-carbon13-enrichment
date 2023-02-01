@@ -15,15 +15,15 @@ ThisBuild / developers := List(
   Developer("ofilangi", "Olivier Filangi", "olivier.filangi@inrae.fr",url("https://github.com/ofilangi"))
 )
 
-
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "positional-carbon13-enrichment",
     version := "0.1.0-SNAPSHOT",
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := "fr.inrae.p2m2.build",
-    idePackagePrefix := Some("fr.inrae.p2m2.tools"),
+    //buildInfoPackage := "fr.inrae.p2m2.build",
+   // idePackagePrefix := Some("fr.inrae.p2m2.tools"),
     libraryDependencies ++= Seq(
       "com.github.scopt" %% "scopt" % "4.1.0",
       "com.lihaoyi" %% "utest" % "0.8.1" % Test,
@@ -34,6 +34,7 @@ lazy val root = (project in file("."))
       else
         Some("Sonatype Snapshots Nexus" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
+    scalaJSUseMainModuleInitializer := true,
     publishConfiguration := publishConfiguration.value.withOverwrite(true),
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
     pomIncludeRepository := { _ => false },
