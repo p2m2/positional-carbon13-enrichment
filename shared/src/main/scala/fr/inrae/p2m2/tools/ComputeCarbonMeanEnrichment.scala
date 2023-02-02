@@ -11,6 +11,14 @@ case object ComputeCarbonMeanEnrichment {
       case (k, v) => k -> v.map(y => (y.mean, y.fragList))
     }
 
+  def buildPlan(minC: Int, maxC: Int): Seq[(String, Seq[String])]  = {
+    minC.to(maxC).flatMap(
+      nc1 =>
+        maxC.to(minC, -1).flatMap(
+          nc2 => CarbonArrangement.planningComputedAdditionalValues(s"C${nc1}C${nc2}")
+        ))
+  }
+
   def setMeanAndFragment(meanEnrichment: Map[String, Seq[(Double, Seq[String])]])
   : (String, Seq[(String, Seq[String])], Map[String, Seq[WorkObject]]) = {
     val maxC = meanEnrichment
@@ -25,12 +33,7 @@ case object ComputeCarbonMeanEnrichment {
 
     val longestCodeCarbon: String = s"C${minC}C${maxC}"
     //  val plan: Seq[(String,Seq[String])] = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
-    val plan: Seq[(String, Seq[String])] =
-      minC.to(maxC).flatMap(
-        nc1 =>
-          maxC.to(minC, -1).flatMap(
-            nc2 => CarbonArrangement.planningComputedAdditionalValues(s"C${nc1}C${nc2}")
-          ))
+    val plan: Seq[(String, Seq[String])] = buildPlan(minC,maxC)
 
     (longestCodeCarbon, plan, (plan.flatMap(_._2).distinct :+ longestCodeCarbon).distinct.map(
       (code: String) => code -> meanEnrichment.getOrElse(code, Seq())
@@ -155,7 +158,7 @@ case object ComputeCarbonMeanEnrichment {
                     //  println("POSSIBILITY:::",listValuesPoss.mkString(","))
                     val sumValues: Seq[(Double, Double)] = listValuesPoss.map(x => (x._2.mean, CarbonArrangement.weight(x._1)))
 
-                    meanEnrichment(leftCode).flatMap(
+                    meanEnrichment.getOrElse(leftCode,Seq()).flatMap(
                       v => {
                         val successors: Seq[String] = listValuesPoss.map(_._2.hashcode) :+ v.hashcode
                         val predecessor: Seq[String] = (listValuesPoss.flatMap(_._2.predecessor) ++ v.predecessor).distinct
