@@ -3,9 +3,22 @@
   <head>
     <meta charset="UTF-8">
     <title>The Scala.js Tutorial</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style media = "screen">
+        body {
+            background: #F5F5F5;
+        }
+        .canvasChart {
+            text-align: center;
+            width: 350px;
+        }
+    </style>
   </head>
   <body>
+
     <div id="positionalCarbon13div"></div>
+  <!-- https://www.chartjs.org/docs/latest/getting-started/ -->
+    <div id="positionalCarbonChartCanvas"></div>
     <!-- Include Scala.js compiled code -->
     <script type="text/javascript" src="../js/target/scala-2.13/positionalcarbonsources-fastopt/main.js"></script>
   </body>

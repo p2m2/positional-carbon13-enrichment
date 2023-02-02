@@ -4,7 +4,7 @@ import fr.inrae.p2m2.tools._
 
 case object IsocorManagement {
 
-  def workflow(isocorContent : String): Map[String, Map[String,Double]] = {
+  def workflow(isocorContent : String): Map[(String,String,String), Map[String,Double]] = {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent)
 
     listMeanEnrichment
@@ -47,8 +47,8 @@ case object IsocorManagement {
           //pour les test deux appels
           val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
           ComputeCarbonMeanEnrichment.printRes(res)
-          k.toString() -> res.flatMap( x => x._2.map( y => (x._1 + y.fragList.mkString("_"),y.mean)) )
-        case (k, _) => println(k," => only 1 value") ;  k.toString() ->Map()
+          k -> res.flatMap( x => x._2.map( y => (x._1 + y.fragList.mkString("_"),y.mean)) )
+        case (k, _) => println(k," => only 1 value") ;  k ->Map()
       }
     }
 }
