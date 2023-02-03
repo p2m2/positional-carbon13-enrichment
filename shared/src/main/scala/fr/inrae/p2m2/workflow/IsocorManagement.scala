@@ -3,7 +3,9 @@ package fr.inrae.p2m2.workflow
 import fr.inrae.p2m2.tools._
 case object IsocorManagement {
 
-  def workflow(isocorContent : String): Map[(String,String), Map[String,Double]] = {
+  def workflow(isocorContent : String)
+  //     SAMPLE/METABOLITE    CODE_FRAG, MEAN_ENR, EXPERIMENTAL
+  : Map[(String,String), Seq[(String,Double,Boolean)]] = {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent)
 
     listMeanEnrichment
@@ -29,8 +31,8 @@ case object IsocorManagement {
           val res2 = ComputeCarbonMeanEnrichment.computeValues(res, p)
           val res3 = ComputeCarbonMeanEnrichment.computeValues(res2, p)
           ComputeCarbonMeanEnrichment.printRes(res3)
-          k -> res3.flatMap( x => x._2.map( y => (x._1 + y.fragList.mkString("_"),y.mean)) )
-        case (k, _) => println(k," => only 1 value") ;  k ->Map()
+          k -> res3.flatMap( x => x._2.map( y => (x._1 + y.fragList.mkString("_"),y.mean,y.experimental)) ).toSeq
+        case (k, _) => println(k," => only 1 value") ;  k ->Seq()
       }
     }
 }
