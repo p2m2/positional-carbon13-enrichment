@@ -1,6 +1,8 @@
 # positional-carbon13-enrichment
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/p2m2/positional-carbon13-enrichment/tree/develop.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/p2m2/positional-carbon13-enrichment/tree/develop)
 
+https://p2m2.github.io/positional-carbon13-enrichment/
+
 ## install
 
 ### Node.js with JSDOM
