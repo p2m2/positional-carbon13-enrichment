@@ -36,4 +36,9 @@ sbt positionalCarbonSourcesJVM/assembly
 sbt fastLinkJS 
 ```
 
+```main 
+fullOptJS
+# --> js/target/scala-2.13/positionalcarbonsources-opt
+```
+
 open [index](./html/index.html)
