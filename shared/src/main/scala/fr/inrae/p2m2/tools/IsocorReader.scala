@@ -43,8 +43,10 @@ case object IsocorReader {
         .map { case (title, idx) => title -> idx }
         .toMap
 
-    if( Seq("sample", "metabolite", "derivative", "mean_enrichment").map(header.contains).exists(!_) )
-      throw new IllegalArgumentException("Can not find header: sample metabolite derivative mean_enrichment")
+    println(header)
+    println(Seq("sample", "metabolite", "mean_enrichment").map(header.contains))
+    if( Seq("sample", "metabolite", "mean_enrichment").map(header.contains).exists(!_) )
+      throw new IllegalArgumentException("Can not find header: 'sample' 'metabolite' 'mean_enrichment'")
 
     val listEntries: Seq[IsocorValue] =
       lines.slice(1,lines.length)
@@ -55,12 +57,11 @@ case object IsocorReader {
           try {
             val sample = res(header("sample"))
             val metabolite = res(header("metabolite"))
-            val derivative = res(header("derivative"))
             val meanEnrichment = res(header("mean_enrichment")).toDouble
 
             extractInformatiponMetaboliteName(metabolite) match {
               case Some((metaboliteName, carbonStart, carbonEnd, fragmentName)) =>
-                Some(IsocorValue(sample, derivative, metaboliteName, fragmentName, carbonStart, carbonEnd, meanEnrichment, experimental = true))
+                Some(IsocorValue(sample, "--d--", metaboliteName, fragmentName, carbonStart, carbonEnd, meanEnrichment, experimental = true))
               case _ => None
             }
 

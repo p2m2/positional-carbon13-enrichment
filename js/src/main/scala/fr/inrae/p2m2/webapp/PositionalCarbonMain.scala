@@ -4,52 +4,16 @@ import scala.scalajs.js
 import org.scalajs.dom
 import scalatags.JsDom.all._
 import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom.html.{Canvas, Element}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement}
+import org.scalajs.dom.html.{Canvas, Element, Input}
 import scalatags.JsDom
 
-import js.JSConverters._
 import scala.scalajs.js.JSON
-import scala.scalajs.js.annotation.JSGlobal
 import scala.util.{Failure, Success, Try}
 
-@JSGlobal
-@js.native
-class Chart(ctx:dom.Element,obj:js.Dynamic) extends js.Object
 object PositionalCarbonMain {
-
+  val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"
-
-  def buildDataset(labels : Seq[String],values : Seq[Double]) : js.Dynamic = {
-    println(labels)
-    println(values)
-
-    js.Dynamic.literal(
-      `type` = "bar",
-      data = js.Dynamic.literal(
-        labels = labels.toJSArray, //js.Array("Red", "Blue", "Yellow", "Green", "Purple", "Orange"),
-        datasets = js.Array(
-          js.Dynamic.literal(
-            label = "Fractional mean 13C Enrichment",
-            `data` = values.toJSArray, //js.Array(12.5, 19.2, 3, 5, 2, 3),
-            backgroundColor =
-              js.Array(
-                "rgba(255, 99, 132, 0.2)",
-                "rgba(255, 159, 64, 0.2)",
-                "rgba(255, 10, 64, 0.2)",
-                "rgba(255, 19, 64, 0.2)",
-                "rgba(255, 169, 64, 0.2)",
-                "rgba(255, 77, 64, 0.2)"),
-            borderWidth = 1
-          )
-        ),
-      ),
-      options = js.Dynamic.literal(
-        scales = js.Dynamic.literal(
-          y = js.Dynamic.literal(beginAtZero = 0)
-        )
-      )
-    )
-  }
 
   def buildCanvasBarPlot(idBarPlot: String): JsDom.TypedTag[Canvas] =
     canvas(id := idBarPlot)
@@ -62,57 +26,86 @@ object PositionalCarbonMain {
       .append(
         div( id:=idDiv , `class` := "canvasChart", h2(title), buildCanvasBarPlot(idCanvas) )
           .render)
-/*
-  def test= {
 
+  def updateHtmlPage(content : String) = {
+    println(content)
+    dom.document.getElementById(idMainDiv).innerHTML = div( id:=idMainDiv ).render.innerHTML
 
-    appendCanvas("chart1_div","chart1_canvas","Test chart")
-    val ctx2 = dom.document.getElementById("chart1_canvas")
-    println(ctx2)
-    new Chart(ctx2, buildDataset())
-
-   // appendCanvas(buildCanvasBarPlot("chart2"))
-
-  }
-*/
-  def main(args: Array[String]): Unit = {
-    println("Hello world!")
-   // test
-    Try(IsocorManagement.workflow(IsocorDataExample.exampleContentIsocor)) match {
+    Try(IsocorManagement.workflow(content.trim)) match {
       case Success(v) => {
-        val metabolites_with_me : Map[(String,String,String), Map[String,Double]] = v
-        metabolites_with_me.foreach  {
-          case( (sample,derivative,metabolite), data) if data.nonEmpty =>
-            val idDiv : String = sample+"_"+metabolite+"_"+derivative+"_div"
-            val idCanvas : String = sample+"_"+metabolite+"_"+derivative+"_canvas"
-            val title = metabolite+" "+derivative
+        val metabolites_with_me: Map[(String, String), Seq[(String, Double, Boolean)]] = v
+        metabolites_with_me
+          .groupBy(_._1._1)
+          .foreach {
+            case ((sample, listV)) =>
+              dom
+                .document
+                .getElementById(idMainDiv)
+                .append(h1(sample).render)
 
-            val labels = data.keys.toSeq
-            val values = data.values.toSeq
+              listV.foreach {
+                case ((sample, metabolite), data) if data.nonEmpty =>
+                  val idDiv: String = sample + "_" + metabolite + "_" + "_div"
+                  val idCanvas: String = sample + "_" + metabolite + "_" + "_canvas"
+                  val title = metabolite
 
-            appendCanvas(idDiv,idCanvas,title)
+                  val labels = data.map(_._1)
+                  val values = data.map(_._2)
 
-            val ctx = dom.document.getElementById(idCanvas)
-            println(ctx)
-            new Chart(ctx, buildDataset(labels,values))
-          case _ => println("ok")
-        }
+                  val backgroundColor = data.map {
+                    case (_, _, true) => "rgba(54, 162, 235, 0.2)"
+                    case (_, _, false) => "rgba(255, 99, 132, 0.2)"
+                  }
+
+                  appendCanvas(idDiv, idCanvas, title)
+
+                  val ctx = dom.document.getElementById(idCanvas)
+                  println(ctx)
+                  new Chart(ctx, Chart.buildDataset(labels, values, backgroundColor))
+                case _ => println("ok")
+              }
+          }
       }
       case Failure(exception) =>
-        dom.document.body.innerHTML = html(
-          head(
-            script(src := "..."),
-            //script("alert('Hello World')")
-          ),
-          body(
+        dom.document
+          .getElementById (idMainDiv)
+          .append(
             div(
               h1(id := "Error Message", " - Exception - "),
               p(exception.getMessage)
-            )
+            ).render
           )
-        ).render.innerHTML
     }
-
-
   }
+
+  def main(args: Array[String]): Unit = {
+
+
+    val inputTag: JsDom.TypedTag[Input] = input(
+      id := "isocorInputFile",
+      `type` := "file",
+      onchange := {
+        () =>
+          val tag = dom.document.getElementById("isocorInputFile")
+          val files = tag.render.asInstanceOf[HTMLInputElement].files
+
+          if (files.nonEmpty) {
+            val reader = new FileReader();
+            reader.onload = (event : Event) => {
+              val content = reader.result.toString
+              updateHtmlPage(content)
+            }
+            println(s"reading ${files(0).name}")
+            reader.readAsText(files(0));
+          }
+
+      }
+    )
+
+    dom
+      .document
+      .getElementById(inputTagId)
+      .append(inputTag.render)
+
+    }
 }

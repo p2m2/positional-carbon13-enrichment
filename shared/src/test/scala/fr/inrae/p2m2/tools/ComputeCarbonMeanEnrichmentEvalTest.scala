@@ -11,10 +11,10 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
         "C2" -> Seq((0.55, Seq()))
       ).toMap
 
-      val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
-      val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
+      val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r, p)
       ComputeCarbonMeanEnrichment.printRes(res)
-      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p, l)
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p)
       // stabilité avec 1 iteration
       assert(res==res3)
     }
@@ -25,11 +25,11 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
         "C1C2" -> Seq((0.5, Seq()))
       ).toMap
 
-      val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
-      val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
+      val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r, p)
       println("== res ==")
       ComputeCarbonMeanEnrichment.printRes(res)
-      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p, l)
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res, p)
       // stabilité avec 1 iteration
       assert(res == res3)
     }
@@ -42,7 +42,7 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
         "C2C3" -> Seq((0.46, Seq("116")), (0.48, Seq("190"))),
       ).toMap
 
-      val (l, p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
+      val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
 
       println("================================ STEP 0 ==")
 
@@ -50,13 +50,13 @@ object ComputeCarbonMeanEnrichmentEvalTest extends TestSuite {
       println(p.map(x => x._1 + "::" + x._2.mkString(",")).mkString("\n"))
       ComputeCarbonMeanEnrichment.printRes(r)
 
-      val res = ComputeCarbonMeanEnrichment.computeValues(r, p, l)
-      val res2 = ComputeCarbonMeanEnrichment.computeValues(res, p, l)
-      val res3 = ComputeCarbonMeanEnrichment.computeValues(res2, p, l)
-      val res4 = ComputeCarbonMeanEnrichment.computeValues(res3, p, l)
+      val res = ComputeCarbonMeanEnrichment.computeValues(r, p)
+      val res2 = ComputeCarbonMeanEnrichment.computeValues(res, p)
+      val res3 = ComputeCarbonMeanEnrichment.computeValues(res2, p)
+      val res4 = ComputeCarbonMeanEnrichment.computeValues(res3, p)
 
       ComputeCarbonMeanEnrichment.printRes(res4)
-      val res5 = ComputeCarbonMeanEnrichment.computeValues(res4, p, l)
+      val res5 = ComputeCarbonMeanEnrichment.computeValues(res4, p)
       assert(res5 == res4)
     }
   }
