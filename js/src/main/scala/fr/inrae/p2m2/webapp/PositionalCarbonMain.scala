@@ -62,41 +62,39 @@ object PositionalCarbonMain {
       .append(
         div( id:=idDiv , `class` := "canvasChart", h2(title), buildCanvasBarPlot(idCanvas) )
           .render)
-/*
-  def test= {
 
-
-    appendCanvas("chart1_div","chart1_canvas","Test chart")
-    val ctx2 = dom.document.getElementById("chart1_canvas")
-    println(ctx2)
-    new Chart(ctx2, buildDataset())
-
-   // appendCanvas(buildCanvasBarPlot("chart2"))
-
-  }
-*/
   def main(args: Array[String]): Unit = {
     println("Hello world!")
    // test
     Try(IsocorManagement.workflow(IsocorDataExample.exampleContentIsocor)) match {
       case Success(v) => {
-        val metabolites_with_me : Map[(String,String,String), Map[String,Double]] = v
-        metabolites_with_me.foreach  {
-          case( (sample,derivative,metabolite), data) if data.nonEmpty =>
-            val idDiv : String = sample+"_"+metabolite+"_"+derivative+"_div"
-            val idCanvas : String = sample+"_"+metabolite+"_"+derivative+"_canvas"
-            val title = metabolite+" "+derivative
+        val metabolites_with_me : Map[(String,String), Map[String,Double]] = v
+        metabolites_with_me
+          .groupBy(_._1._1 )
+          .foreach {
+            case ((sample, listV)) =>
+              dom
+                .document
+                .getElementById(idMainDiv)
+                .append(h1(sample).render)
 
-            val labels = data.keys.toSeq
-            val values = data.values.toSeq
+              listV.foreach {
+                case ((sample, metabolite), data) if data.nonEmpty =>
+                  val idDiv: String = sample + "_" + metabolite + "_" + "_div"
+                  val idCanvas: String = sample + "_" + metabolite + "_" + "_canvas"
+                  val title = metabolite
 
-            appendCanvas(idDiv,idCanvas,title)
+                  val labels = data.keys.toSeq
+                  val values = data.values.toSeq
 
-            val ctx = dom.document.getElementById(idCanvas)
-            println(ctx)
-            new Chart(ctx, buildDataset(labels,values))
-          case _ => println("ok")
-        }
+                  appendCanvas(idDiv, idCanvas, title)
+
+                  val ctx = dom.document.getElementById(idCanvas)
+                  println(ctx)
+                  new Chart(ctx, buildDataset(labels, values))
+                case _ => println("ok")
+              }
+          }
       }
       case Failure(exception) =>
         dom.document.body.innerHTML = html(

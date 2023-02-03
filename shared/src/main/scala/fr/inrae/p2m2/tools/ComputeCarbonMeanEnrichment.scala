@@ -2,8 +2,13 @@ package fr.inrae.p2m2.tools
 
 case object ComputeCarbonMeanEnrichment {
 
-  case class WorkObject(code: String, mean: Double, fragList: Seq[String], predecessor: Seq[String] = Seq()) {
-    def hashcode: String = code
+  case class WorkObject(
+                         code: String,
+                         mean: Double,
+                         fragList: Seq[String],
+                         experimental: Boolean,
+                         predecessor: Seq[String] = Seq()) {
+    def hashcode: String = code // + "_" + fragList.mkString("_")
   }
 
   def getMeanAndFragment(l: Map[String, Seq[WorkObject]]): Map[String, Seq[(Double, Seq[String])]] =
@@ -20,7 +25,7 @@ case object ComputeCarbonMeanEnrichment {
   }
 
   def setMeanAndFragment(meanEnrichment: Map[String, Seq[(Double, Seq[String])]])
-  : (String, Seq[(String, Seq[String])], Map[String, Seq[WorkObject]]) = {
+  : (Seq[(String, Seq[String])], Map[String, Seq[WorkObject]]) = {
     val maxC = meanEnrichment
       .keys
       .flatMap(CarbonArrangement.code2Indexes)
@@ -32,35 +37,33 @@ case object ComputeCarbonMeanEnrichment {
       .minBy(_._1)._1
 
     val longestCodeCarbon: String = s"C${minC}C${maxC}"
-    //  val plan: Seq[(String,Seq[String])] = CarbonArrangement.planningComputedAdditionalValues(longestCodeCarbon)
     val plan: Seq[(String, Seq[String])] = buildPlan(minC,maxC)
 
-    (longestCodeCarbon, plan, (plan.flatMap(_._2).distinct :+ longestCodeCarbon).distinct.map(
+    (plan, (plan.flatMap(_._2).distinct :+ longestCodeCarbon).distinct.map(
       (code: String) => code -> meanEnrichment.getOrElse(code, Seq())
         .map {
-          case x if x._2 == Seq() => WorkObject(code, x._1, Seq("*EXP*"))
-          case x => WorkObject(code, x._1, x._2)
+          case x if x._2 == Seq() => WorkObject(code, x._1, Seq("*EXP*"),experimental = true)
+          case x => WorkObject(code, x._1, x._2,experimental = true)
         }
     ).toMap)
   }
 
 
-  def eval(meanEnrichment: Map[String, Seq[WorkObject]], longestCodeCarbon: String, plan: Seq[(String, Seq[String])])
+  def eval(meanEnrichment: Map[String, Seq[WorkObject]], plan: Seq[(String, Seq[String])])
   : Map[String, Seq[WorkObject]] = {
 
-    computeValues(meanEnrichment, plan, longestCodeCarbon)
+    computeValues(meanEnrichment, plan)
   }
 
   def computeValuesRecursive(meanEnrichment: Map[String, Seq[WorkObject]],
-                             executionPlan: Seq[(String, Seq[String])],
-                             longestCodeCarbon: String): Map[String, Seq[WorkObject]] = {
+                             executionPlan: Seq[(String, Seq[String])]): Map[String, Seq[WorkObject]] = {
 
-    val res = computeValues(meanEnrichment, executionPlan, longestCodeCarbon)
+    val res = computeValues(meanEnrichment, executionPlan)
 
     //printRes(res)
 
     res match {
-      case m if meanEnrichment != m => computeValuesRecursive(m, executionPlan, longestCodeCarbon)
+      case m if meanEnrichment != m => computeValuesRecursive(m, executionPlan)
       case m => m
     }
   }
@@ -78,8 +81,7 @@ case object ComputeCarbonMeanEnrichment {
 
   def computeValues(
                      meanEnrichment: Map[String, Seq[WorkObject]],
-                     executionPlan: Seq[(String, Seq[String])],
-                     longestCodeCarbon: String
+                     executionPlan: Seq[(String, Seq[String])]
                    ): Map[String, Seq[WorkObject]] = {
 
     meanEnrichment.map {
@@ -90,8 +92,8 @@ case object ComputeCarbonMeanEnrichment {
             .filter(_._2.size > 1)
             .flatMap {
               case listCodeAdd: (String, Seq[String]) =>
-                // println(s"\n\n============= LEFT SEARCH ${code} ==========")
-                // println(s"PLAN EXEC : LEFT(${listCodeAdd._1})  RIGHT(${listCodeAdd._2.mkString(",")})")
+          //      println(s"\n\n============= LEFT SEARCH ${code} ==========")
+          //      println(s"PLAN EXEC : LEFT(${listCodeAdd._1})  RIGHT(${listCodeAdd._2.mkString(",")})")
                 /**
                  * method to compute C1C3
                  * CIC3 = 1) 2*C1C2 + C3  or 2) C1 + 2*C2C3
@@ -100,24 +102,24 @@ case object ComputeCarbonMeanEnrichment {
                   meanEnrichment
                     .filter(x => listCodeAdd._2.contains(x._1)) //
 
-                // println(rightValuesMap)
-                // println(listSumValuesPossibilities(rightValuesMap))
+            //    println(rightValuesMap)
+            //    println(listSumValuesPossibilities(rightValuesMap))
                 listSumValuesPossibilities(rightValuesMap).flatMap {
 
                   //                          code,  (mean,  frag)
                   case listValuesPoss: Seq[(String, WorkObject)] =>
                     val successors: Seq[String] = listValuesPoss.map(_._2.hashcode)
                     val predecessor: Seq[String] = listValuesPoss.flatMap(_._2.predecessor).distinct
-                    /*
+/*
                   println("Sum des valeurs=>",listValuesPoss.map(_._1).mkString("+")+" ou "+listValuesPoss.map(_._2.code).mkString("+"))
                   println("succ****************", successors)
                   println("pred****************", predecessor)
                   println(successors intersect predecessor)
-  */
+*/
                     // if intersection non empty => data is linked => no computation
                     if ((successors intersect predecessor).isEmpty) {
-                      // println(s"CRITERE K => INTERSECTION VIDE")
-                      // println(listValuesPoss)
+  //                    println(s"CRITERE K => INTERSECTION VIDE")
+    //                  println(listValuesPoss)
                       val sumValues: Seq[(Double, Double)] = listValuesPoss.map(x => (x._2.mean, CarbonArrangement.weight(x._1)))
 
                       val meanEnrichmentComputed =
@@ -126,7 +128,7 @@ case object ComputeCarbonMeanEnrichment {
                       val fragmentComputed: Seq[String] = listValuesPoss.flatMap(x => x._2.fragList).distinct.sorted
 
                       Some(WorkObject(code, meanEnrichmentComputed,
-                        fragmentComputed, predecessor = (successors ++ predecessor)))
+                        fragmentComputed, experimental = false,predecessor = (successors ++ predecessor)))
                     } else {
                       None
                     }
@@ -181,7 +183,12 @@ case object ComputeCarbonMeanEnrichment {
                           val meanEnrichmentComputed =
                             CarbonArrangement.diffMeanEnrichment(isoVal, sumValues, CarbonArrangement.weight(code))
                           //  println(WorkObject(code,meanEnrichmentComputed, fragmentComputed, predecessor = (successors++predecessor)))
-                          Some(WorkObject(code, meanEnrichmentComputed, fragmentComputed, predecessor = (successors ++ predecessor)))
+                          Some(WorkObject(
+                            code,
+                            meanEnrichmentComputed,
+                            fragmentComputed,
+                            experimental = false,
+                            predecessor = (successors ++ predecessor)))
                         } else {
                           None
                         }
