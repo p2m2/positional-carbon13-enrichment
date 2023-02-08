@@ -12,8 +12,6 @@ class Chart(ctx:dom.Element,obj:js.Dynamic) extends js.Object
 
 case object Chart {
   def buildDataset(labels: Seq[String], values: Seq[Double], backgroundColor: Seq[String]): js.Dynamic = {
-    println(labels)
-    println(values)
 
     js.Dynamic.literal(
       `type` = "bar",
