@@ -45,7 +45,11 @@ case object Chart {
       ),
       options = js.Dynamic.literal(
         scales = js.Dynamic.literal(
-          y = js.Dynamic.literal(beginAtZero = 0)
+          y = js.Dynamic.literal(
+            beginAtZero = 0,
+            max = 1.0,
+            min = 0
+          )
         ),
         plugins = js.Dynamic.literal(
           title = js.Dynamic.literal(
