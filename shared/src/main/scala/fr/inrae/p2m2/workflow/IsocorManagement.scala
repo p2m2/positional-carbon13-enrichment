@@ -6,7 +6,7 @@ case object IsocorManagement {
   def workflow(isocorContent : String)
   //     SAMPLE/METABOLITE    CODE_FRAG, MEAN_ENR, EXPERIMENTAL
   : Map[(String,String), Seq[(String,Double,Boolean)]] = {
-    val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent)
+    val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent.replace("\r", "\n"))
 
     listMeanEnrichment
       .groupBy(x => (x.sample, x.metabolite))
