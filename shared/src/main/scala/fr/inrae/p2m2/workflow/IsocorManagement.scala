@@ -24,8 +24,12 @@ case object IsocorManagement {
           val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(mapArrangementCarbon13)
 
           //val res = ComputeCarbonMeanEnrichment.computeValues(r, p)
-
-          k -> ComputeCarbonMeanEnrichment.computeValues(r, p).flatMap( x => x._2.map( y => (x._1 + y.fragList.mkString("_"),y.mean,y.experimental)) ).toSeq
+          for (elem <- ComputeCarbonMeanEnrichment.computeValues(r, p)) {println(elem._2)}
+          k -> ComputeCarbonMeanEnrichment.computeValues(r, p).flatMap( x => x._2
+            .map{
+              case y if y.fragList.exists(_.nonEmpty) => (x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"),y.mean,y.experimental)
+              case y => (x._1,y.mean,y.experimental)
+            }).toSeq
         case (k, _) => println(k," => only 1 value") ;  k ->Seq()
       }
     }

@@ -30,7 +30,11 @@ object PositionalCarbonMain {
           .render)
 
   def updateHtmlPage(content : String) = {
-    dom.document.getElementById(idMainDiv).innerHTML = div( id:=idMainDiv ).render.innerHTML
+    dom.document.getElementById(idMainDiv).innerHTML =
+      div(
+        id:=idMainDiv,
+        h1("Fractional mean ",sup("13"),"C enrichment")
+    ).render.innerHTML
 
     Try(IsocorManagement.workflow(content.trim)) match {
       case Success(v) => {
@@ -45,7 +49,7 @@ object PositionalCarbonMain {
                 .getElementById(idMainDiv)
                 .append(
                   div(
-                    h1(s"Sample $sample"),
+                    h2(s"Sample $sample"),
                     div(id:=idDivSample, `class`:="gridCanvas")
                   ).render
                 )
@@ -63,7 +67,7 @@ object PositionalCarbonMain {
                   //println("****************")
                   //println(sample,metabolite)
                   //println("EXP")
-                  //data.filter(_._3).foreach{ elt => println(elt)}
+                 // data.filter(_._3).foreach{ elt => println(elt)}
                  // println("CALC")
                  // values_calc.foreach{ elt => println(elt)}
 
