@@ -19,12 +19,15 @@ object PositionalCarbonMain {
     canvas(id := idBarPlot)
 
 
-  def appendCanvas(idDiv:String,idCanvas:String, title:String) =
+  def appendCanvas(idDivSample:String,idDiv:String,idCanvas:String, title:String) =
     dom
       .document
-      .getElementById(idMainDiv)
+      .getElementById(idDivSample)
       .append(
-        div( id:=idDiv , `class` := "canvasChart", h2(title), buildCanvasBarPlot(idCanvas) )
+        div( id:=idDiv ,
+          `class` := "canvasChart",
+          h2(title),
+          buildCanvasBarPlot(idCanvas) )
           .render)
 
   def updateHtmlPage(content : String) = {
@@ -38,10 +41,16 @@ object PositionalCarbonMain {
           .groupBy(_._1._1)
           .foreach {
             case ((sample, listV)) =>
+              val idDivSample = s"div_$sample"
               dom
                 .document
                 .getElementById(idMainDiv)
-                .append(h1(sample).render)
+                .append(
+                  div(
+                    h1(sample),
+                    div(id:=idDivSample, `class`:="gridCanvas")
+                  ).render
+                )
 
               listV.foreach {
                 case ((sample, metabolite), data) if data.nonEmpty =>
@@ -57,10 +66,9 @@ object PositionalCarbonMain {
                     case (_, _, false) => "rgba(255, 99, 132, 0.2)"
                   }
 
-                  appendCanvas(idDiv, idCanvas, title)
+                  appendCanvas(idDivSample,idDiv, idCanvas, title)
 
                   val ctx = dom.document.getElementById(idCanvas)
-                  println(ctx)
                   new Chart(ctx, Chart.buildDataset(labels, values, backgroundColor))
                 case _ => println("ok")
               }
