@@ -30,7 +30,11 @@ object PositionalCarbonMain {
           .render)
 
   def updateHtmlPage(content : String) = {
-    dom.document.getElementById(idMainDiv).innerHTML = div( id:=idMainDiv ).render.innerHTML
+    dom.document.getElementById(idMainDiv).innerHTML =
+      div(
+        id:=idMainDiv,
+        h1("Fractional mean ",sup("13"),"C enrichment")
+    ).render.innerHTML
 
     Try(IsocorManagement.workflow(content.trim)) match {
       case Success(v) => {
@@ -45,7 +49,7 @@ object PositionalCarbonMain {
                 .getElementById(idMainDiv)
                 .append(
                   div(
-                    h1(sample),
+                    h2(s"Sample $sample"),
                     div(id:=idDivSample, `class`:="gridCanvas")
                   ).render
                 )
@@ -63,7 +67,7 @@ object PositionalCarbonMain {
                   //println("****************")
                   //println(sample,metabolite)
                   //println("EXP")
-                  //data.filter(_._3).foreach{ elt => println(elt)}
+                 // data.filter(_._3).foreach{ elt => println(elt)}
                  // println("CALC")
                  // values_calc.foreach{ elt => println(elt)}
 
@@ -100,7 +104,7 @@ object PositionalCarbonMain {
 
           if (files.nonEmpty) {
             val reader = new FileReader();
-            reader.onload = (event : Event) => {
+            reader.onload = (_ : Event) => {
               val content = reader.result.toString
               updateHtmlPage(content)
             }
