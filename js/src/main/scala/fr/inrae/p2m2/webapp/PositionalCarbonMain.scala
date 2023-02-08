@@ -19,19 +19,17 @@ object PositionalCarbonMain {
     canvas(id := idBarPlot)
 
 
-  def appendCanvas(idDivSample:String,idDiv:String,idCanvas:String, title:String) =
+  def appendCanvas(idDivSample:String,idDiv:String,idCanvas:String) =
     dom
       .document
       .getElementById(idDivSample)
       .append(
         div( id:=idDiv ,
           `class` := "canvasChart",
-          h2(title),
           buildCanvasBarPlot(idCanvas) )
           .render)
 
   def updateHtmlPage(content : String) = {
-    println(content)
     dom.document.getElementById(idMainDiv).innerHTML = div( id:=idMainDiv ).render.innerHTML
 
     Try(IsocorManagement.workflow(content.trim)) match {
@@ -59,17 +57,20 @@ object PositionalCarbonMain {
                   val title = metabolite
 
                   val labels = data.map(_._1)
-                  val values = data.map(_._2)
+                  val values_exp = data.filter(_._3).map(_._2)
+                  val values_calc = data.filter(!_._3).map(_._2)
 
-                  val backgroundColor = data.map {
-                    case (_, _, true) => "rgba(54, 162, 235, 0.2)"
-                    case (_, _, false) => "rgba(255, 99, 132, 0.2)"
-                  }
+                  //println("****************")
+                  //println(sample,metabolite)
+                  //println("EXP")
+                  //data.filter(_._3).foreach{ elt => println(elt)}
+                 // println("CALC")
+                 // values_calc.foreach{ elt => println(elt)}
 
-                  appendCanvas(idDivSample,idDiv, idCanvas, title)
+                  appendCanvas(idDivSample,idDiv, idCanvas)
 
                   val ctx = dom.document.getElementById(idCanvas)
-                  new Chart(ctx, Chart.buildDataset(labels, values, backgroundColor))
+                  new Chart(ctx, Chart.buildDataset(title,labels, values_exp,values_calc))
                 case _ => println("ok")
               }
           }
@@ -103,7 +104,7 @@ object PositionalCarbonMain {
               val content = reader.result.toString
               updateHtmlPage(content)
             }
-            println(s"reading ${files(0).name}")
+         //   println(s"reading ${files(0).name}")
             reader.readAsText(files(0));
           }
 
