@@ -3,8 +3,10 @@ package fr.inrae.p2m2.webapp
 import org.scalajs.dom
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSGlobal
-import js.JSConverters._
+import scala.scalajs.js.annotation.{JSExportTopLevel, JSGlobal}
+import js.JSConverters.{iterableOnceConvertible2JSRichIterableOnce, _}
+import scala.scalajs.js.JSON
+import scala.scalajs.js.Object.{entries, keys}
 
 /**
  * Documentation Chart.js
@@ -15,8 +17,8 @@ import js.JSConverters._
 @js.native
 class Chart(ctx:dom.Element,obj:js.Dynamic) extends js.Object
 
-
 case object Chart {
+
   def buildDataset(title:String, labels: Seq[String],
                    values_exp: Seq[Double],
                    values_computed: Seq[Double]): js.Dynamic = {
@@ -56,6 +58,33 @@ case object Chart {
             display = true,
             text = title,
             color = "blue",
+          ),
+          legend = js.Dynamic.literal(
+            display = true,
+            onClick = (evt : js.Object,legendItem:js.Object,legend:js.Object) => { println("no legend click defined...") },
+            labels = js.Dynamic.literal(
+              generateLabels = { (chart: js.Object) => {
+                Seq(
+                  js.Dynamic.literal(
+                    text = "experimental",
+                    strokeStyle = "rgba(54, 162, 235, 0.2)",
+                    fillStyle = "rgba(54, 162, 235, 0.2)",
+                    hidden = false
+                  ),
+                  js.Dynamic.literal(
+                    text = "calculated",
+                    strokeStyle = "rgba(255, 99, 132, 0.2)",
+                    fillStyle = "rgba(255, 99, 132, 0.2)",
+                    hidden = false
+                  )
+                ).toJSArray
+              }
+              }
+            )
+           /*
+            labels= js.Dynamic.literal(
+              genetareLabels = f
+            )*/
           )
         ),
       )

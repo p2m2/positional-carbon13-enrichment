@@ -45,7 +45,7 @@ object PositionalCarbonMain {
                 .getElementById(idMainDiv)
                 .append(
                   div(
-                    h1(sample),
+                    h1(s"Sample $sample"),
                     div(id:=idDivSample, `class`:="gridCanvas")
                   ).render
                 )
@@ -100,7 +100,7 @@ object PositionalCarbonMain {
 
           if (files.nonEmpty) {
             val reader = new FileReader();
-            reader.onload = (event : Event) => {
+            reader.onload = (_ : Event) => {
               val content = reader.result.toString
               updateHtmlPage(content)
             }
