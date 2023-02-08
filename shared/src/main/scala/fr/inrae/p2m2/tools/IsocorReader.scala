@@ -30,11 +30,9 @@ case object IsocorReader {
      return Seq[IsocorValue]
    */
   def getMeanEnrichmentByFragment(content : String): Seq[IsocorValue] = {
-    println("===========================")
-
 
     val lines= content.trim.split("\n")
-    println(lines(0))
+
     val header: Map[String, Int] =
       lines(0)
         .split("[ ;\t]")
@@ -43,15 +41,15 @@ case object IsocorReader {
         .map { case (title, idx) => title -> idx }
         .toMap
 
-    println(header)
-    println(Seq("sample", "metabolite", "mean_enrichment").map(header.contains))
     if( Seq("sample", "metabolite", "mean_enrichment").map(header.contains).exists(!_) )
       throw new IllegalArgumentException("Can not find header: 'sample' 'metabolite' 'mean_enrichment'")
 
     val listEntries: Seq[IsocorValue] =
-      lines.slice(1,lines.length)
-      .flatMap(
-        f = line => {
+      lines
+        .slice(1,lines.length)
+        .zipWithIndex
+      .flatMap {
+        case (line, idx) if line.trim.nonEmpty =>
           val res = line
             .split("[ ;\t]")
           try {
@@ -64,14 +62,12 @@ case object IsocorReader {
                 Some(IsocorValue(sample, "--d--", metaboliteName, fragmentName, carbonStart, carbonEnd, meanEnrichment, experimental = true))
               case _ => None
             }
-
           } catch {
-            case e: Exception =>
-              System.err.println(e)
-              None
+            case _: Throwable =>
+              throw new IllegalArgumentException(s"Error with dat line [$idx] :$line")
           }
-        }
-      ).toSeq
+        case _ => None
+      }.toSeq
 
     listEntries
   }
