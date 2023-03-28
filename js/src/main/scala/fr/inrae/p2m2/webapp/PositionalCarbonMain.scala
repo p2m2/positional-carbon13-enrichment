@@ -60,9 +60,13 @@ object PositionalCarbonMain {
                   val idCanvas: String = sample + "_" + metabolite + "_" + "_canvas"
                   val title = metabolite
 
-                  val labels = data.map(_._1)
                   val values_exp = data.filter(_._3).map(_._2)
+                  val labels_exp = data.filter(_._3).map(_._1)
+
                   val values_calc = data.filter(!_._3).map(_._2)
+                  val labels_calc = data.filter(!_._3).map(_._1)
+
+
 
                   //println("****************")
                   //println(sample,metabolite)
@@ -74,7 +78,7 @@ object PositionalCarbonMain {
                   appendCanvas(idDivSample,idDiv, idCanvas)
 
                   val ctx = dom.document.getElementById(idCanvas)
-                  new Chart(ctx, Chart.buildDataset(title,labels, values_exp,values_calc))
+                  new Chart(ctx, Chart.buildDataset(title,labels_exp, values_exp,labels_calc,values_calc))
                 case _ => println("ok")
               }
           }
