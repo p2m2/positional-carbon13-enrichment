@@ -15,8 +15,16 @@ runMain fr.inrae.p2m2.tools.PositionalCarbon13EnrichmentMain src/test/resources/
 
 ### test app
 
+#### jvm
+
 ```bash
 sbt positionalCarbonSourcesJVM/test
+```
+
+#### nodejs
+
+```bash
+npm install jsdom
 sbt positionalCarbonSourcesJS/test
 ```
 
