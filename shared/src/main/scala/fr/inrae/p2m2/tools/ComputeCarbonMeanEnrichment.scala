@@ -201,6 +201,44 @@ case object ComputeCarbonMeanEnrichment {
     }
   }
 
+  def get(arrangement : String, meanEnrichment: Map[String, Seq[WorkObject]]) : Seq[WorkObject] = {
+
+    // if exist get selected WorkObject
+    meanEnrichment.filter(_._1 == arrangement).flatMap(_._2).toSeq
+  }
+
+  def pos(a : Seq[Seq[WorkObject]]) : Seq[Seq[WorkObject]] = {
+    a.fold(Seq())( (accumulator : Seq[Seq[WorkObject]], p : Seq[WorkObject]) =>
+      p.map( wo => accumulator.map( (l  : Seq[WorkObject]) => l ++ Seq(wo) ) )
+  }
+
+  def computeSingleValue(
+                        arrangement : String,
+                        executionPlan: Seq[(String, Seq[String])],
+                        meanEnrichment: Map[String, Seq[WorkObject]],
+                   ): Seq[WorkObject] = {
+
+    /* Arrangement should be on the right or left side, otherwise it is not possible to compute value */
+    val leftSide : Seq[Seq[String]] = executionPlan.filter(_._1 == arrangement).map(_._2)
+    val rghtSide : Seq[(String, Seq[String])] = executionPlan.filter( _._2.contains(arrangement) )
+
+    ( leftSide, rghtSide ) match {
+      case (s1,_) if s1.nonEmpty =>  println("===================OK1====================",arrangement)
+        println("======")
+        println(s1)
+        println("======")
+        val r = s1.map(
+          listRightTerm => listRightTerm
+            .map(term => get(term, meanEnrichment).map(wo => (wo.mean, wo.fragList)))
+        )
+          .filter(!_.contains(Seq())) // on supprimer les possibilités ou un element n est pas present (le terme de droite n est pas calculable)
+        println(r)
+      case (_,s2) if s2.nonEmpty =>  println("OK2")
+      case (_,_) =>  println("OK3")
+    }
+    Seq()
+  }
+
   def printRes(res: Map[String, Seq[WorkObject]], valueDisplay: Boolean = true): Unit = {
     println(" =============== MAP ==============================================")
     for (elem <- res) {
