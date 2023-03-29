@@ -4,14 +4,22 @@ import scala.scalajs.js
 import org.scalajs.dom
 import scalatags.JsDom.all._
 import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom.{Event, FileReader, HTMLInputElement}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement, window}
 import org.scalajs.dom.html.{Canvas, Element, Input}
 import scalatags.JsDom
 
 import scala.scalajs.js.JSON
+import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.util.{Failure, Success, Try}
 
 object PositionalCarbonMain {
+
+
+  val initialData : Map[String,Seq[String]] = Map(
+    "Glutamate" -> Seq("C1"),
+    "Serine3" -> Seq("C1", "C1C3", "C3")
+  )
+
   val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"
 
@@ -36,8 +44,24 @@ object PositionalCarbonMain {
         h1("Fractional mean ",sup("13"),"C enrichment")
     ).render.innerHTML
 
-    Try(IsocorManagement.workflow(content.trim)) match {
+    Try(IsocorManagement.workflow(content.trim,initialData)) match {
       case Success(v) => {
+        val textContent : String = {
+          "Sample\tMetabolite\tIsotope\tMean\tExperiment/Computed\n" +
+          v.map {
+          case (k,l) => l.map( u => Seq(k._1,k._2, u._1, u._2, u._3).mkString("\t") ).mkString("\n")
+        }.mkString("\n")
+        }
+
+        dom
+          .document
+          .getElementById(idMainDiv)
+          .append(
+            div(
+              a("download mean as a TSV file",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
+            ).render
+          )
+
         val metabolites_with_me: Map[(String, String), Seq[(String, Double, Boolean)]] = v
         metabolites_with_me
           .groupBy(_._1._1)
