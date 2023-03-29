@@ -164,14 +164,7 @@ case object ComputeCarbonMeanEnrichment {
                       v => {
                         val successors: Seq[String] = listValuesPoss.map(_._2.hashcode) :+ v.hashcode
                         val predecessor: Seq[String] = (listValuesPoss.flatMap(_._2.predecessor) ++ v.predecessor).distinct
-                        /*
-                      println("2222")
-                      println("==>",listValuesPoss.mkString(",") +" ----- "+v)
-                      println("Sum des valeurs=>",successors.mkString("+/-"))
-                      println("succ****************", successors)
-                      println("pred****************", predecessor)
-                      println(successors intersect predecessor)
-                      println(successors intersect predecessor)*/
+
                         // if intersection non empty => data is linked => no computation
                         if ((successors intersect predecessor).isEmpty) {
                           //  println(s"CRITERE K => INTERSECTION VIDE")
@@ -213,19 +206,10 @@ case object ComputeCarbonMeanEnrichment {
    */
   def sumPossibilities[A](arr : Seq[Seq[A]]) : Seq[Seq[A]] = {
       arr match {
-        case Seq(a) =>
-          println("== Ok 11 ==", arr)
-          val v = a.map(Seq(_))
-          println(v)
-          v
+        case Seq(a) => a.map(Seq(_))
         case Seq(array : Seq[A],_*) =>
-          println("== Ok ==",arr)
-          val v = array.flatMap( valueA => sumPossibilities(arr.drop(1)).map( arr2 => valueA +: arr2 ))
-          println(v)
-          v
-        case Seq() =>
-          println("== Empty ==")
-          Seq()
+          array.flatMap( valueA => sumPossibilities(arr.drop(1)).map( arr2 => valueA +: arr2 ))
+        case Seq() => Seq()
       }
   }
 
@@ -240,20 +224,73 @@ case object ComputeCarbonMeanEnrichment {
     val rghtSide : Seq[(String, Seq[String])] = executionPlan.filter( _._2.contains(arrangement) )
 
     ( leftSide, rghtSide ) match {
-      case (s1,_) if s1.nonEmpty =>  println("===================OK1====================",arrangement)
-        println("======")
-        println(s1)
-        println("======")
-        val r = s1.map(
-          listRightTerm => listRightTerm
-            .map(term => get(term, meanEnrichment).map(wo => (wo.mean, wo.fragList)))
+      case (s1,_) if s1.nonEmpty =>
+        s1.map(
+          listRightTerm =>
+            listRightTerm.map(term => get(term, meanEnrichment))
         )
-          .filter(!_.contains(Seq())) // on supprimer les possibilités ou un element n est pas present (le terme de droite n est pas calculable)
-        println(r)
-      case (_,s2) if s2.nonEmpty =>  println("OK2")
-      case (_,_) =>  println("OK3")
+          // remove all possibility with missing WO (sum of right terms is not computable)
+          .filter(!_.contains(Seq()))
+          // flatting all possibility to compute sum of WO
+          .flatMap(sumPossibilities)
+         .map {
+            case arrayWoToSum : Seq[WorkObject] =>
+              val sumValues: Seq[(Double, Double)] = arrayWoToSum.map(x => (x.mean, CarbonArrangement.weight(x.code)))
+
+              val meanEnrichmentComputed =
+                CarbonArrangement.sumMeanEnrichment(sumValues, CarbonArrangement.weight(arrangement))
+
+              val fragmentComputed: Seq[String] = arrayWoToSum.flatMap(x => x.fragList).distinct.sorted
+
+              WorkObject(arrangement, meanEnrichmentComputed,
+                fragmentComputed, experimental = false, predecessor = arrayWoToSum.flatMap(_.fragList)
+              )
+          }
+
+      case (_,s2) if s2.nonEmpty =>
+        println("========= Is ON RIGHT TERM ========")
+        println(s2)
+        s2.map{
+          case (leftTerm : String, rightTerms : Seq[String]) =>
+            (
+              get(leftTerm,meanEnrichment),
+              rightTerms.filter(_ != arrangement).map(term => get(term, meanEnrichment)))
+        }.filter {
+          // remove all possibility with missing WO
+          case (leftTerm : Seq[WorkObject], rightTerms : Seq[Seq[WorkObject]]) =>
+            leftTerm.nonEmpty && (! rightTerms.contains(Seq()))
+        }.map {
+              /*
+                transform the duple into a single array of Seq[Seq[WO]]
+                the first element is the LeftTerm, from the second, it's all right terms
+              */
+          case (leftTerm : Seq[WorkObject], rightTerms : Seq[Seq[WorkObject]]) =>
+            leftTerm +: rightTerms
+        }
+          .flatMap(sumPossibilities)
+          .map {
+            case arrayToDissect: Seq[WorkObject] =>
+              val leftTerm = arrayToDissect.head
+              val rightTerms = arrayToDissect.drop(1)
+
+              val isoVal: (Double, Double) = (leftTerm.mean, CarbonArrangement.weight(leftTerm.code))
+
+              val fragmentComputed: Seq[String] = (rightTerms.flatMap(x => x.fragList) ++ leftTerm.fragList).distinct.sorted
+              val sumValues: Seq[(Double, Double)] = rightTerms.map(x => (x.mean, CarbonArrangement.weight(x.code)))
+
+              val meanEnrichmentComputed =
+                CarbonArrangement.diffMeanEnrichment(isoVal, sumValues, CarbonArrangement.weight(leftTerm.code))
+
+              WorkObject(
+                arrangement,
+                meanEnrichmentComputed,
+                fragmentComputed,
+                experimental = false,
+                predecessor = fragmentComputed)
+          }
+      case (_,_) =>  println("OK3") ; Seq()
     }
-    Seq()
+
   }
 
   def printRes(res: Map[String, Seq[WorkObject]], valueDisplay: Boolean = true): Unit = {
