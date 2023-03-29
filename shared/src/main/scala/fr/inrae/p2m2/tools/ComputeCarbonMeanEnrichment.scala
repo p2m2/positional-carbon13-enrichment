@@ -250,8 +250,6 @@ case object ComputeCarbonMeanEnrichment {
           }
 
       case (_,s2) if s2.nonEmpty =>
-        println("========= Is ON RIGHT TERM ========")
-        println(s2)
         s2.map{
           case (leftTerm : String, rightTerms : Seq[String]) =>
             (
@@ -290,7 +288,9 @@ case object ComputeCarbonMeanEnrichment {
                 experimental = false,
                 predecessor = (leftTerm+:rightTerms).map(_.hashcode))
           }
-      case (_,_) =>  println("OK3") ; Seq()
+      case (_,_) =>
+        System.err.println(s"Can not find $arrangement in the execution plan: $executionPlan")
+        Seq()
     }
 
   }

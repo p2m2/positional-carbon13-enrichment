@@ -3,7 +3,7 @@ package fr.inrae.p2m2.tools
 import utest.{TestSuite, Tests, test}
 object StaticListArrangementTest extends TestSuite {
   def tests: Tests = Tests {
-    /*
+
     test("sumPossibilities [[a] [b]] -> [[a,b]]") {
       assert(ComputeCarbonMeanEnrichment.sumPossibilities(Seq(Seq("a"),Seq("b"))) == Seq(Seq("a","b")))
     }
@@ -62,7 +62,6 @@ object StaticListArrangementTest extends TestSuite {
       val res2 = ComputeCarbonMeanEnrichment.computeSingleValue("C2", p, r)
       println(res2)
     }
-    */
 
     test(" Computed isotope of Glutamate") {
       val m = Seq(
