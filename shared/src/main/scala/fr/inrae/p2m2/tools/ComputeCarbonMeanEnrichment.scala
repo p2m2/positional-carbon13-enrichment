@@ -3,12 +3,13 @@ package fr.inrae.p2m2.tools
 case object ComputeCarbonMeanEnrichment {
 
   case class WorkObject(
-                         code: String,
-                         mean: Double,
-                         fragList: Seq[String],
-                         experimental: Boolean,
-                         predecessor: Seq[String] = Seq()) {
-    def hashcode: String = code // + "_" + fragList.mkString("_")
+                        code: String,
+                        mean: Double,
+                        fragList: Seq[String],
+                        experimental: Boolean,
+                        predecessor: Seq[String] = Seq()) {
+    def hashcode: String = code+"_"+fragList.mkString("_")
+    def isEqual(hashcodeComp: String) : Boolean = hashcode == hashcodeComp
   }
 
   def getMeanAndFragment(l: Map[String, Seq[WorkObject]]): Map[String, Seq[(Double, Seq[String])]] =
@@ -108,7 +109,7 @@ case object ComputeCarbonMeanEnrichment {
 
                   //                          code,  (mean,  frag)
                   case listValuesPoss: Seq[(String, WorkObject)] =>
-                    val successors: Seq[String] = listValuesPoss.map(_._2.hashcode)
+                    val successors: Seq[String] = listValuesPoss.map(_._2.code)
                     val predecessor: Seq[String] = listValuesPoss.flatMap(_._2.predecessor).distinct
 /*
                   println("Sum des valeurs=>",listValuesPoss.map(_._1).mkString("+")+" ou "+listValuesPoss.map(_._2.code).mkString("+"))
@@ -162,7 +163,7 @@ case object ComputeCarbonMeanEnrichment {
 
                     meanEnrichment.getOrElse(leftCode,Seq()).flatMap(
                       v => {
-                        val successors: Seq[String] = listValuesPoss.map(_._2.hashcode) :+ v.hashcode
+                        val successors: Seq[String] = listValuesPoss.map(_._2.code) :+ v.code
                         val predecessor: Seq[String] = (listValuesPoss.flatMap(_._2.predecessor) ++ v.predecessor).distinct
 
                         // if intersection non empty => data is linked => no computation
@@ -243,7 +244,8 @@ case object ComputeCarbonMeanEnrichment {
               val fragmentComputed: Seq[String] = arrayWoToSum.flatMap(x => x.fragList).distinct.sorted
 
               WorkObject(arrangement, meanEnrichmentComputed,
-                fragmentComputed, experimental = false, predecessor = arrayWoToSum.flatMap(_.fragList)
+                fragmentComputed, experimental = false,
+                predecessor = arrayWoToSum.map(_.hashcode)
               )
           }
 
@@ -279,14 +281,14 @@ case object ComputeCarbonMeanEnrichment {
               val sumValues: Seq[(Double, Double)] = rightTerms.map(x => (x.mean, CarbonArrangement.weight(x.code)))
 
               val meanEnrichmentComputed =
-                CarbonArrangement.diffMeanEnrichment(isoVal, sumValues, CarbonArrangement.weight(leftTerm.code))
+                CarbonArrangement.diffMeanEnrichment(isoVal, sumValues, CarbonArrangement.weight(arrangement))
 
               WorkObject(
                 arrangement,
                 meanEnrichmentComputed,
                 fragmentComputed,
                 experimental = false,
-                predecessor = fragmentComputed)
+                predecessor = (leftTerm+:rightTerms).map(_.hashcode))
           }
       case (_,_) =>  println("OK3") ; Seq()
     }
