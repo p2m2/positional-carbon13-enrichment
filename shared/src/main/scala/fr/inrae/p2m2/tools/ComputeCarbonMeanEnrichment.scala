@@ -206,10 +206,27 @@ case object ComputeCarbonMeanEnrichment {
     // if exist get selected WorkObject
     meanEnrichment.filter(_._1 == arrangement).flatMap(_._2).toSeq
   }
-
-  def pos(a : Seq[Seq[WorkObject]]) : Seq[Seq[WorkObject]] = {
-    a.fold(Seq())( (accumulator : Seq[Seq[WorkObject]], p : Seq[WorkObject]) =>
-      p.map( wo => accumulator.map( (l  : Seq[WorkObject]) => l ++ Seq(wo) ) )
+  /*
+    build all product possibility an array of several array
+    Example :
+    [[a,b]  [c,d]] -> [ [a,c] [a,d] [b,c] [b,d]]
+   */
+  def sumPossibilities[A](arr : Seq[Seq[A]]) : Seq[Seq[A]] = {
+      arr match {
+        case Seq(a) =>
+          println("== Ok 11 ==", arr)
+          val v = a.map(Seq(_))
+          println(v)
+          v
+        case Seq(array : Seq[A],_*) =>
+          println("== Ok ==",arr)
+          val v = array.flatMap( valueA => sumPossibilities(arr.drop(1)).map( arr2 => valueA +: arr2 ))
+          println(v)
+          v
+        case Seq() =>
+          println("== Empty ==")
+          Seq()
+      }
   }
 
   def computeSingleValue(
