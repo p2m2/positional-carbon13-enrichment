@@ -43,10 +43,11 @@ object StaticListArrangementTest extends TestSuite {
       ).toMap
 
       val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
-      println(p)
-      println(r)
+      //println(p)
+      //println(r)
       val res2 = ComputeCarbonMeanEnrichment.computeSingleValue("C2", p, r)
-      println(res2)
+     // println(res2)
+      assert(res2.length == 1)
     }
 
     test("computeSingleValue on right term ") {
@@ -57,10 +58,11 @@ object StaticListArrangementTest extends TestSuite {
       ).toMap
 
       val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
-      println(p)
-      println(r)
+      //println(p)
+      //println(r)
       val res2 = ComputeCarbonMeanEnrichment.computeSingleValue("C2", p, r)
-      println(res2)
+      //println(res2)
+      assert(res2.length == 1)
     }
 
     test(" Computed isotope of Glutamate") {
@@ -71,8 +73,8 @@ object StaticListArrangementTest extends TestSuite {
       ).toMap
       val (p, r) = ComputeCarbonMeanEnrichment.setMeanAndFragment(m)
       val res2 = ComputeCarbonMeanEnrichment.computeSingleValue("C1", p, r)
-      println(res2)
-
+      //println(res2)
+      assert(res2.length == 2)
     }
 
   }
