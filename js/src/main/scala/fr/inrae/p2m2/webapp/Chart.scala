@@ -19,14 +19,16 @@ class Chart(ctx:dom.Element,obj:js.Dynamic) extends js.Object
 
 case object Chart {
 
-  def buildDataset(title:String, labels: Seq[String],
+  def buildDataset(title:String,
+                   labels_exp: Seq[String],
                    values_exp: Seq[Double],
+                   labels_computed: Seq[String],
                    values_computed: Seq[Double]): js.Dynamic = {
 
     js.Dynamic.literal(
       `type` = "bar",
       data = js.Dynamic.literal(
-        labels = labels.toJSArray, //js.Array("Red", "Blue", "Yellow", "Green", "Purple", "Orange"),
+        labels = (labels_exp ++ labels_computed).toJSArray, //js.Array("Red", "Blue", "Yellow", "Green", "Purple", "Orange"),
         datasets = js.Array(
           js.Dynamic.literal(
             label = "Mean enrichment",

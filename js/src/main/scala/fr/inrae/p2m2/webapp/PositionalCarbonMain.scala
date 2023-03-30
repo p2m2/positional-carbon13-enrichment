@@ -4,14 +4,34 @@ import scala.scalajs.js
 import org.scalajs.dom
 import scalatags.JsDom.all._
 import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom.{Event, FileReader, HTMLInputElement}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement, window}
 import org.scalajs.dom.html.{Canvas, Element, Input}
 import scalatags.JsDom
 
 import scala.scalajs.js.JSON
+import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.util.{Failure, Success, Try}
 
 object PositionalCarbonMain {
+
+  /* Default dependencies to compute enrichment mean */
+  val initialData : Map[String,Map[String,Seq[String]]] = Map(
+    "Glutamate" ->
+      Map("C1" -> Seq("C1C5","C2C5"))
+    ,
+    "Alphaalanine" ->
+      Map(
+        "C1C3" -> Seq("C1","C2C3"),
+        "C2"-> Seq("C1C2","C1"),
+        "C3"-> Seq("C2C3","C2")),
+    "Serine3" -> Map(
+      "C1" -> Seq("C1C2","C2"),
+      "C3" -> Seq("C2C3","C2"),
+      "C1C3" -> Seq("C1","C2","C3")
+     )
+  )
+
+
   val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"
 
@@ -36,8 +56,24 @@ object PositionalCarbonMain {
         h1("Fractional mean ",sup("13"),"C enrichment")
     ).render.innerHTML
 
-    Try(IsocorManagement.workflow(content.trim)) match {
+    Try(IsocorManagement.workflow(content.trim,initialData)) match {
       case Success(v) => {
+        val textContent : String = {
+          "Sample\tMetabolite\tIsotope\tMean\tExperiment/Computed\n" +
+          v.map {
+          case (k,l) => l.map( u => Seq(k._1,k._2, u._1, u._2, u._3).mkString("\t") ).mkString("\n")
+        }.mkString("\n")
+        }
+
+        dom
+          .document
+          .getElementById(idMainDiv)
+          .append(
+            div(
+              a("download C-Positional Enrichments (TSV file)",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
+            ).render
+          )
+
         val metabolites_with_me: Map[(String, String), Seq[(String, Double, Boolean)]] = v
         metabolites_with_me
           .groupBy(_._1._1)
@@ -60,9 +96,13 @@ object PositionalCarbonMain {
                   val idCanvas: String = sample + "_" + metabolite + "_" + "_canvas"
                   val title = metabolite
 
-                  val labels = data.map(_._1)
                   val values_exp = data.filter(_._3).map(_._2)
+                  val labels_exp = data.filter(_._3).map(_._1)
+
                   val values_calc = data.filter(!_._3).map(_._2)
+                  val labels_calc = data.filter(!_._3).map(_._1)
+
+
 
                   //println("****************")
                   //println(sample,metabolite)
@@ -74,7 +114,7 @@ object PositionalCarbonMain {
                   appendCanvas(idDivSample,idDiv, idCanvas)
 
                   val ctx = dom.document.getElementById(idCanvas)
-                  new Chart(ctx, Chart.buildDataset(title,labels, values_exp,values_calc))
+                  new Chart(ctx, Chart.buildDataset(title,labels_exp, values_exp,labels_calc,values_calc))
                 case _ => println("ok")
               }
           }
