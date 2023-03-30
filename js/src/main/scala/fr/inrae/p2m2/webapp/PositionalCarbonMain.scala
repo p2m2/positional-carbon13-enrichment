@@ -14,11 +14,23 @@ import scala.util.{Failure, Success, Try}
 
 object PositionalCarbonMain {
 
-
-  val initialData : Map[String,Seq[String]] = Map(
-    "Glutamate" -> Seq("C1"),
-    "Serine3" -> Seq("C1", "C1C3", "C3")
+  /* Default dependencies to compute enrichment mean */
+  val initialData : Map[String,Map[String,Seq[String]]] = Map(
+    "Glutamate" ->
+      Map("C1" -> Seq("C1C5","C2C5"))
+    ,
+    "Alphaalanine" ->
+      Map(
+        "C1C3" -> Seq("C1","C2C3"),
+        "C2"-> Seq("C1C2","C1"),
+        "C3"-> Seq("C2C3","C2")),
+    "Serine3" -> Map(
+      "C1" -> Seq("C1C2","C2"),
+      "C3" -> Seq("C2C3","C2"),
+      "C1C3" -> Seq("C1","C2","C3")
+     )
   )
+
 
   val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"
@@ -58,7 +70,7 @@ object PositionalCarbonMain {
           .getElementById(idMainDiv)
           .append(
             div(
-              a("download mean as a TSV file",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
+              a("download C-Positional Enrichments (TSV file)",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
             ).render
           )
 
