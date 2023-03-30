@@ -24,7 +24,7 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 ```shell
 sbt positionalCarbonSourcesJVM/run jvm/src/test/resources/galaxy430_res.tsv
 ```
-te
+
 ### Html
 
 ```shell 
