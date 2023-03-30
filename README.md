@@ -17,7 +17,7 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 ## Software installation
 ### Dependencies
 - [SBT](https://www.scala-sbt.org/)
-- [ScalaJS / Node.js with JSDOM]((https://www.scala-js.org/doc/project/js-environments.html))
+- [ScalaJS - Node.js with JSDOM]((https://www.scala-js.org/doc/project/js-environments.html))
 
 ### command line
 
