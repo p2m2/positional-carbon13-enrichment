@@ -24,6 +24,7 @@ workflows:
       - test:
           context:
             - DOCKER_CONTEXT
+            - CODECOV_CONTEXT
 
 executors:
 
@@ -53,7 +54,7 @@ jobs:
           name: Compile - JVM
           command: cat /dev/null | sbt positionalCarbonSourcesJVM/test
       - run:
-          name: Compile - JVM
+          name: Coverage
           command: |
             cat /dev/null | sbt clean coverage \
             positionalCarbonSourcesJVM/Test/test positionalCarbonSourcesJVM/coverageReport
