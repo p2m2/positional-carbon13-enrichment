@@ -1,48 +1,26 @@
-# positional-carbon13-enrichment
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/p2m2/positional-carbon13-enrichment/tree/develop.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/p2m2/positional-carbon13-enrichment/tree/develop)
+# Calculations of <sup>13</sup>C-Positional Enrichments
 
-https://p2m2.github.io/positional-carbon13-enrichment/
+[![p2m2](https://circleci.com/gh/p2m2/positional-carbon13-enrichment.svg?style=shield)](https://app.circleci.com/pipelines/github/p2m2)
+[![codecov](https://codecov.io/gh/p2m2/positional-carbon13-enrichment/branch/develop/graph/badge.svg)](https://codecov.io/gh/p2m2/positional-carbon13-enrichment)
 
-## nextcloud doc
+<sup>13</sup>C-positional enrichments were calculated by combining mean <sup>13</sup>C enrichments
+of several mass fragments that shared part of the carbon backbone from the same TMS
+derivative. A workflow has been created to calculate these <sup>13</sup>C-positional enrichments
+directly from the outputs of our <sup>13</sup>C-processing method
 
-https://nextcloud.inrae.fr/f/97142470
+To use the software without prior installation and obtain a visual rendering, please visit the site https://p2m2.github.io/positional-carbon13-enrichment/
 
+https://doi.org/10.3390/metabo13040466
 
-## install
-
-### Node.js with JSDOM
-
-check [scala.js installation page](https://www.scala-js.org/doc/project/js-environments.html)
-
-```bash
-runMain fr.inrae.p2m2.tools.PositionalCarbon13EnrichmentMain src/test/resources/galaxy430_res.tsv
-```
-
-### test app
-
-#### jvm
-
-```bash
-sbt positionalCarbonSourcesJVM/test
-```
-
-#### nodejs
-
-```bash
-npm install jsdom
-sbt positionalCarbonSourcesJS/test
-```
+## Software installation
+### Dependencies
+- [SBT](https://www.scala-sbt.org/)
+- [ScalaJS / Node.js with JSDOM]((https://www.scala-js.org/doc/project/js-environments.html))
 
 ### command line
 
 ```shell
 sbt positionalCarbonSourcesJVM/run jvm/src/test/resources/galaxy430_res.tsv
-```
-
-### jar
-
-``` 
-sbt positionalCarbonSourcesJVM/assembly
 ```
 
 ### Html
@@ -51,12 +29,15 @@ sbt positionalCarbonSourcesJVM/assembly
 sbt fastLinkJS 
 ```
 
-```main 
-fullOptJS
-# --> js/target/scala-2.13/positionalcarbonsources-opt
+```sbt 
+sbt fullOptJS
+cp js/target/scala-2.13/positionalcarbonsources-opt/* docs/
+# the html page is available in the docs directory
 ```
 
-open [index](./html/index.html)
+## Authors
+- Y. Dellero, O. Filangi - IGEPP’s Metabolic Profiling and Metabolomic Platform (P2M2, Rennes)
 
-https://doi.org/10.3390/metabo13040466
+
+
 
