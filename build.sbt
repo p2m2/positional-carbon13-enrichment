@@ -55,11 +55,6 @@ lazy val root = (project in file("."))
     coverageHighlighting := true
   )
 
-// Project containing source code shared between the JS and JVM projects.
-// This project should never be compiled or packages but is simply an IntelliJ IDEA
-// friendly alternative to a shared code directory. Projects depending on this
-// projects source code should declare a dependency as 'Provided' AND append
-// this projects source directory manually to 'unmanagedSourceDirectories'.
 lazy val PositionalCarbon13EnrichmentShared = project.in(file("shared"))
 
 lazy val PositionalCarbon13EnrichmentSharedSettings = Seq(
@@ -73,9 +68,6 @@ lazy val PositionalCarbon13EnrichmentSharedSettings = Seq(
 
 lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings(
-    libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "utest" % "0.8.1" % Test
-    ),
     testFrameworks += new TestFramework("utest.runner.Framework")
   ).
   jvmSettings(
