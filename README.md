@@ -17,15 +17,15 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 
 ## Software programming environment
 
-- [SBT](https://www.scala-sbt.org/)
-- [Scala](https://www.scala-lang.org/)
-- [ScalaJS - Node.js with JSDOM](https://www.scala-js.org/doc/project/js-environments.html)
+-  [SBT](https://www.scala-sbt.org/)
+-  [Scala](https://www.scala-lang.org/)
+-  [ScalaJS - Node.js with JSDOM](https://www.scala-js.org/doc/project/js-environments.html)
 
 
 ### Dependencies for HTML generation
 
-- [Chart.js](https://www.chartjs.org/)
-- [ScalaTags](https://com-lihaoyi.github.io/scalatags/)
+-  [Chart.js](https://www.chartjs.org/)
+-  [ScalaTags](https://com-lihaoyi.github.io/scalatags/)
 
 ### command line
 
