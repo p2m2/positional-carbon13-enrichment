@@ -6,6 +6,7 @@ import scalatags.JsDom.all.{id, _}
 import fr.inrae.p2m2.workflow.IsocorManagement
 import org.scalajs.dom.{Event, FileReader, HTMLInputElement, window}
 import org.scalajs.dom.html.{Canvas, Element, Input}
+import org.scalajs.dom.window.alert
 import scalatags.JsDom
 
 import scala.collection.immutable.Map
@@ -40,14 +41,9 @@ object PositionalCarbonMain {
 
   def parsePositionalEnrichmentDependencies(s : String) : ComputeRulesType = {
 
-    println("parsePositionalEnrichmentDependencies")
-    println(s)
     val sep1 = "\\s*->\\s*"
 
-    val keyValPattern: Regex = s"([\\da-zA-Z]+)$sep1\\(\\s*([C\\d]+)$sep1([C\\d]+)\\s*(,\\s*[C\\d]+\\s*)?\\)".r
-
-    for ( patternMatch <- keyValPattern.findAllMatchIn(s))
-      println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
+    val keyValPattern: Regex = s"([\\da-zA-Z]+)$sep1\\s*([C\\d]+)$sep1([C\\d]+)\\s*(,\\s*[C\\d]+\\s*)?".r
 
     keyValPattern.findAllMatchIn(s).toSeq.flatMap {
       case (data : Regex.Match) if data.groupCount>2 => {
@@ -59,23 +55,27 @@ object PositionalCarbonMain {
      //   println("*"+data.group(4)+"*")
         Some(data.group(1).replace("\\s","") ->
           (Seq( data.group(2).replace("\\s","") -> 3.to(data.groupCount)
-          .map(data.group(_).replace("\\s","").replace(",","")))))
+          .map(data.group(_).replace("\n","").replace(",","")))))
         // println(group.mkString(","))
       }
       //println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
       case (data : Regex.Match) =>
         System.err.println(s"Can not parse ${data.source}")
         None
-    }.toMap
+    }
+      .groupBy(_._1)
+      .map {
+        case (compound, struct) =>  compound -> struct.flatMap(_._2)
+      }
   }
 
   def textPositionalEnrichmentDependencies( m : ComputeRulesType) : String = {
     m.map {
       case (compose : String, rules : Seq[(String,Seq[String])] ) =>
-        compose + " -> (" + rules.map {
+         rules.map {
           case (toCompute : String, dependencies : Seq[String]) =>
-             toCompute + " -> " + dependencies.mkString(",")
-        }.mkString("\n") + ")"
+            compose + " -> " + toCompute + " -> " + dependencies.mkString(",")
+        }.mkString("\n")
     }.mkString("\n")
   }
 
@@ -118,6 +118,10 @@ object PositionalCarbonMain {
 
   def updateHtmlPage(content : String, rulesForEachMetabolite : ComputeRulesType) : Unit = {
     cleanHtmlPage
+
+    println("==== rules =====")
+    println(rulesForEachMetabolite)
+
     Try(IsocorManagement.workflow(content.trim,rulesForEachMetabolite)) match {
       case Success(v) => {
         val textContent : String = {
@@ -201,8 +205,8 @@ object PositionalCarbonMain {
 
           val tag = dom.document.getElementById("isocorInputFile")
           val files = tag.render.asInstanceOf[HTMLInputElement].files
-          val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").innerText
-
+          val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").textContent
+        //  alert(contentRules)
           if (files.nonEmpty) {
             val reader = new FileReader();
             reader.onload = (_ : Event) => {
