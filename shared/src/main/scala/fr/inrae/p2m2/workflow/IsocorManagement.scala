@@ -4,7 +4,23 @@ import fr.inrae.p2m2.tools._
 
 case object IsocorManagement {
 
-  def workflow(isocorContent : String, isotopeToCompute : Map[String,Map[String,Seq[String]]] = Map())
+  def filterPlan(toCalculated :String, dependencies : Seq[String], execPlan : Seq[(String, Seq[String])])
+  : Seq[(String, Seq[String])] = {
+    execPlan.filter {
+      case (leftTerm, rightTerms) if leftTerm == toCalculated =>
+       // println(" 1 == leftTerm:", leftTerm, " righTerms:", rightTerms, " ask:", toCalculated)
+        dependencies.sorted == rightTerms
+
+      case (leftTerm, rightTerms) if rightTerms.contains(toCalculated) =>
+       // println("2 == key:", toCalculated, " Plan (leftterm:", leftTerm, " righTerms:", rightTerms, ")   => dependences:", dependencies)
+        dependencies.contains(leftTerm) &&
+          (dependencies.filter(_ != leftTerm).sorted == (rightTerms.filter(_ != toCalculated)).sorted)
+
+      case (_,_) => false
+    }
+  }
+
+  def workflow(isocorContent : String, isotopeToCompute : Map[String,Seq[(String,Seq[String])]] = Map())
   //     SAMPLE/METABOLITE    CODE_FRAG, MEAN_ENR, EXPERIMENTAL
   : Map[(String,String), Seq[(String,Double,Boolean)]] = {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent.replace("\r", "\n"))
@@ -18,51 +34,35 @@ case object IsocorManagement {
           val mapArrangementCarbon13: Map[String, Seq[(Double, Seq[String])]] =
             listValues
               .distinct
-              .map {
-                case isocorVal => isocorVal.code -> Seq((isocorVal.meanEnrichment, Seq(isocorVal.fragment)))
-              }.groupBy(_._1).map( x => x._1 -> x._2.flatMap(_._2))
+              .map(isocorVal => isocorVal.code ->
+                Seq((isocorVal.meanEnrichment, Seq(isocorVal.fragment))))
+              .groupBy(_._1).map(x => x._1 -> x._2.flatMap(_._2))
 
           val (
             execPlan : Seq[(String, Seq[String])] ,
             meanEnrichmentValues : Map[String, Seq[ComputeCarbonMeanEnrichment.WorkObject]] ) =
-
             ComputeCarbonMeanEnrichment.setMeanAndFragment(mapArrangementCarbon13)
 
           val metabolite = k._2
 
-          k -> ({
+          k -> {
             if(!isotopeToCompute.contains(metabolite)) {
 
-              System.err.println(s"${metabolite} have not desired isotope to compute. Try to search new isotope to infer")
+              System.err.println(s"$metabolite have not desired isotope to compute. Try to search new isotope to infer")
               ComputeCarbonMeanEnrichment.computeValues(meanEnrichmentValues, execPlan)
             } else {
-              val listIso : Map[String,Seq[String]] = isotopeToCompute(metabolite)
-              /* filter execution plan with the desired method */
-              val p = execPlan.filter {
-                case (leftTerm,rightTerms) => if (listIso.keys.toSeq.contains(leftTerm) ) {
-                  listIso(leftTerm).toList.sorted == rightTerms
-                } else if (listIso.keys.toSeq.exists(a => rightTerms.contains(a))) {
-                  //une des clefs de listIso exist dans les termes droite du plan d execution . c est peut-etre un "diff"
-                  listIso
-                    .keys
-                    .toSeq
-                    .filter(a => rightTerms.contains(a)).exists(
-                    key => {
-                     // println("key:",key," Plan (leftterm:",leftTerm," righTerms:",rightTerms,")   => dependences:",listIso(key))
-                      listIso(key).contains(leftTerm) &&
-                        (listIso(key).filter(_ != leftTerm).sorted == (rightTerms.filter( _ != key)).sorted)
-                    }
-                  )
-                } else
-                  false
-              }
-              listIso.keys.foldLeft(meanEnrichmentValues){
+              val listIso : Seq[(String,Seq[String])] = isotopeToCompute(metabolite)
+
+              listIso.foldLeft(meanEnrichmentValues){
                 (acc,l) =>
-                  println(s"CAL FOR $metabolite / $l")
-                  combineIterables(acc,Map( l->ComputeCarbonMeanEnrichment.computeSingleValue(l, p, acc)))
+                 // println(s"CAL FOR $metabolite / $l")
+                  val np = filterPlan(l._1,l._2,execPlan)
+                  //println(execPlan)
+                  //println("NP:",np)
+                  combineIterables(acc,Map( l._1->ComputeCarbonMeanEnrichment.computeSingleValue(l._1, np, acc)))
               }
             }
-          }).flatMap(x => x._2
+          }.flatMap(x => x._2
             .map {
               case y if y.fragList.exists(_.nonEmpty) => (x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"), y.mean, y.experimental)
               case y => (x._1, y.mean, y.experimental)

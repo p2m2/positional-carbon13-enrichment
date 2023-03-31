@@ -26,11 +26,10 @@ workflows:
             - DOCKER_CONTEXT
 
 executors:
-
   openjdk:
       working_directory: ~/repo
       docker:
-        - image: circleci/openjdk:8-jdk
+        - image: cimg/openjdk:19.0.2
           auth:
             username: ${DOCKER_USER}
             password: ${DOCKER_PASS}
@@ -52,3 +51,12 @@ jobs:
       - run:
           name: Compile - JVM
           command: cat /dev/null | sbt positionalCarbonSourcesJVM/test
+      - run:
+          name: Coverage
+          command: |
+            cat /dev/null | sbt clean coverage \
+            positionalCarbonSourcesJVM/Test/test positionalCarbonSourcesJVM/coverageReport
+            bash <(curl -s https://codecov.io/bash)
+            bash <(curl -Ls https://coverage.codacy.com/get.sh) report
+      - store_artifacts:
+            path: positional-carbon13-enrichment/jvm/target/test-reports
