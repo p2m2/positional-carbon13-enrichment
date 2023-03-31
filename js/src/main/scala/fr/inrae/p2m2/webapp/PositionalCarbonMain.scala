@@ -4,7 +4,7 @@ import scala.scalajs.js
 import org.scalajs.dom
 import scalatags.JsDom.all.{id, _}
 import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom.{Event, FileReader, HTMLInputElement, window}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement, window}
 import org.scalajs.dom.html.{Canvas, Element, Input}
 import org.scalajs.dom.window.alert
 import scalatags.JsDom
@@ -34,11 +34,22 @@ object PositionalCarbonMain {
      )
   )
 
+  val commentInitialData : String =
+    """
+      |
+      |""".stripMargin
+
   val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"
   val idDisplay : String = "display"
   val idHeader : String = "header"
 
+  def clean(el : String) : String =
+    el
+      .replace(",","")
+      .replace(" ","")
+      .replace("\t","")
+      .replace("\n","")
   def parsePositionalEnrichmentDependencies(s : String) : ComputeRulesType = {
 
     val sep1 = "\\s*->\\s*"
@@ -53,9 +64,9 @@ object PositionalCarbonMain {
      //  println(data.groupCount)
      //   println("*"+data.group(3)+"*")
      //   println("*"+data.group(4)+"*")
-        Some(data.group(1).replace("\\s","") ->
-          (Seq( data.group(2).replace("\\s","") -> 3.to(data.groupCount)
-          .map(data.group(_).replace("\n","").replace(",","")))))
+        Some(clean(data.group(1)) ->
+          (Seq( clean(data.group(2)) -> 3.to(data.groupCount)
+          .map(a => clean(data.group(a))))))
         // println(group.mkString(","))
       }
       //println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
@@ -97,13 +108,11 @@ object PositionalCarbonMain {
     dom
       .document
       .getElementById("positionalEnrichmentDependencies")
-      .innerText = s
+      .asInstanceOf[HTMLTextAreaElement].value = s
   }
 
   def cleanHtmlPage : Unit = {
-    Try(dom.document.getElementById(idHeader).remove()) match {
-      case _ =>
-    }
+
     Try(dom.document.getElementById(idMainDiv).remove()) match {
       case _ =>
     }
@@ -205,8 +214,8 @@ object PositionalCarbonMain {
 
           val tag = dom.document.getElementById("isocorInputFile")
           val files = tag.render.asInstanceOf[HTMLInputElement].files
-          val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").textContent
-        //  alert(contentRules)
+          val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").asInstanceOf[HTMLTextAreaElement].value
+          //alert(contentRules)
           if (files.nonEmpty) {
             val reader = new FileReader();
             reader.onload = (_ : Event) => {

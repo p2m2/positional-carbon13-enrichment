@@ -36,6 +36,9 @@
         }
     </style>
   </head>
+  <header>
+    <a href="https://github.com/p2m2/" target="_blank"><img src="https://img.shields.io/badge/github-p2m2-blue.svg"/></a>
+  </header>
   <body>
 
   <h1><a href="javascript:window.location.reload(true)">Calculations of <sup>13</sup>C-Positional Enrichments</a></h1>
@@ -54,6 +57,14 @@
     </p>
 
     <h2>Calculation rules</h2>
+      <p style="color:blue;text-align:center">
+      <i>The rules must follow the following form (The isotope A is built from the Metabolite B,C,D ...).
+        Metabolite refers to the label in the IsoCor file
+        <br/>
+        [Metabolite] -> A -> B, C, D,...
+        <br/>
+        If the rules are not defined for a compound, all combinations of calculations are proposed.</i>
+      </p>
     <div class="centered-element">
       <textarea id="positionalEnrichmentDependencies" cols="100" rows="10"></textarea>
     </div>
@@ -65,15 +76,15 @@
   <!-- https://www.chartjs.org/docs/latest/getting-started/ -->
     <div id="positionalCarbonChartCanvas">
   </div>
-
+  <br/>
   </div>
     <!-- Include Scala.js compiled code -->
     <script type="text/javascript" src="../js/target/scala-2.13/positionalcarbonsources-fastopt/main.js"></script>
-
-    <footer>
-      <a href="https://github.com/p2m2/positional-carbon13-enrichment/blob/develop/LICENSE"><img src="https://img.shields.io/github/license/p2m2/positional-carbon13-enrichment.svg"/></a>
-      <a href="https://github.com/p2m2/"><img src="https://img.shields.io/badge/github-p2m2-blue.svg"/></a>
-    </footer>
   </body>
+    <footer>
+      <a href="https://www6.inrae.fr/p2m2" target="_blank"><img src="p2m2.png" width="120"></a>
+      <a href="https://www.metabohub.fr/" target="_blank"><img src="metabohub.png" width="120"></a>
+    </footer>
+
 </html>
 

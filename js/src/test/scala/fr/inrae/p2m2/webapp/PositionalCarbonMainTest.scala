@@ -52,5 +52,14 @@ object PositionalCarbonMainTest extends TestSuite {
           |""".stripMargin
       assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies(text) == waitingRes)
     }
+
+    test("Malate -> C2C3 -> C2C4, C4") {
+      val waitingRes = Map(
+        "Malate" -> Seq(
+          "C2C3" -> Seq("C2C4", "C4")
+        )
+      )
+      assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Malate -> C2C3 -> C2C4, C4") == waitingRes)
+    }
   }
 }
