@@ -14,31 +14,48 @@ To use the software without prior installation and obtain a visual rendering, pl
 
 For a precise description of the method, refer to the publication [*"Evaluation of GC/MS-Based <sup>13</sup>C-Positional Approaches for TMS Derivatives of Organic and Amino Acids and Application to Plant <sup>13</sup>C-Labeled Experiments"*](https://doi.org/10.3390/metabo13040466)
 
-## Software installation
-### Dependencies
+## Software programming environment
+
 - [SBT](https://www.scala-sbt.org/)
+- [Scala](https://www.scala-lang.org/)
 - [ScalaJS - Node.js with JSDOM](https://www.scala-js.org/doc/project/js-environments.html)
+
+
+### Dependencies for HTML generation
+
+- [Chart.js](https://www.chartjs.org/)
+- [ScalaTags](https://com-lihaoyi.github.io/scalatags/)
 
 ### command line
 
 ```shell
-sbt positionalCarbonSourcesJVM/run jvm/src/test/resources/galaxy430_res.tsv
+sbt positionalCarbonSourcesJVM/run ./resources/galaxy430_res.tsv
 ```
 
 ### Html
 
+#### Development version
+
 ```shell 
 sbt fastLinkJS 
+# open html/index.html
 ```
 
-```sbt 
+#### Release
+
+```shell 
 sbt fullOptJS
 cp js/target/scala-2.13/positionalcarbonsources-opt/* docs/
-# the html page is available in the docs directory
+# open docs/index.html
 ```
 
-## Authors
-- Y. Dellero, O. Filangi - IGEPP’s Metabolic Profiling and Metabolomic Platform (P2M2, Rennes)
+## Information about the authors and the software
+
+*Y. Dellero, O. Filangi, A . Bouchereau*
+
+- [Institute for Genetics, Environment and Plant Protection (IGEPP), National Research Institute for Agriculture, Food and Environment (INRAE), Institut Agro, Université Rennes, 35650 Le Rheu, France](https://www6.rennes.inrae.fr/igepp)
+- [Metabolic Profiling and Metabolomic Platform (P2M2), Biopolymers Interactions Assemblies, Institute for Genetics, Environment and Plant Protection, 35650 Le Rheu, France](https://www6.inrae.fr/p2m2/)
+- [MetaboHUB, National Infrastructure of Metabolomics and Fluxomics, 35650 Le Rheu, France](https://www.metabohub.fr/)
 
 
 This code is released under the MIT License.
