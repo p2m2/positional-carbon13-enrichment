@@ -24,14 +24,12 @@ workflows:
       - test:
           context:
             - DOCKER_CONTEXT
-            - CODECOV_CONTEXT
-
+            -
 executors:
-
   openjdk:
       working_directory: ~/repo
       docker:
-        - image: circleci/openjdk:8-jdk
+        - image: cimg/openjdk:19.0.2
           auth:
             username: ${DOCKER_USER}
             password: ${DOCKER_PASS}
