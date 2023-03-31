@@ -24,7 +24,7 @@ workflows:
       - test:
           context:
             - DOCKER_CONTEXT
-            -
+
 executors:
   openjdk:
       working_directory: ~/repo
