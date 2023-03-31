@@ -12,11 +12,13 @@ import scala.collection.immutable.Map
 import scala.scalajs.js.JSON
 import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.util.{Failure, Success, Try}
+import scala.util.matching.Regex
 
 object PositionalCarbonMain {
 
+  type ComputeRulesType = Map[String,Seq[(String,Seq[String])]]
   /* Default dependencies to compute enrichment mean */
-  val initialData : Map[String,Seq[(String,Seq[String])]] = Map(
+  val initialData : ComputeRulesType = Map(
     "Glutamate" ->
       Seq("C1" -> Seq("C1C5","C2C5"))
     ,
@@ -36,12 +38,38 @@ object PositionalCarbonMain {
   val idDisplay : String = "display"
   val idHeader : String = "header"
 
-  def parsePositionalEnrichmentDependencies(s : String) : Map[String,Seq[(String,Seq[String])]] = {
-    //val numberPattern = "a-zA-Z".r
-    Map()
+  def parsePositionalEnrichmentDependencies(s : String) : ComputeRulesType = {
+
+    println("parsePositionalEnrichmentDependencies")
+    println(s)
+    val sep1 = "\\s*->\\s*"
+
+    val keyValPattern: Regex = s"([\\da-zA-Z]+)$sep1\\(\\s*([C\\d]+)$sep1([C\\d]+)\\s*(,\\s*[C\\d]+\\s*)?\\)".r
+
+    for ( patternMatch <- keyValPattern.findAllMatchIn(s))
+      println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
+
+    keyValPattern.findAllMatchIn(s).toSeq.flatMap {
+      case (data : Regex.Match) if data.groupCount>2 => {
+        // 1 -> Metabolite
+        // 2 -> Isotope to compute
+        // 3..n -> Dependencies
+     //  println(data.groupCount)
+     //   println("*"+data.group(3)+"*")
+     //   println("*"+data.group(4)+"*")
+        Some(data.group(1).replace("\\s","") ->
+          (Seq( data.group(2).replace("\\s","") -> 3.to(data.groupCount)
+          .map(data.group(_).replace("\\s","").replace(",","")))))
+        // println(group.mkString(","))
+      }
+      //println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
+      case (data : Regex.Match) =>
+        System.err.println(s"Can not parse ${data.source}")
+        None
+    }.toMap
   }
 
-  def textPositionalEnrichmentDependencies( m : Map[String,Seq[(String,Seq[String])]]) : String = {
+  def textPositionalEnrichmentDependencies( m : ComputeRulesType) : String = {
     m.map {
       case (compose : String, rules : Seq[(String,Seq[String])] ) =>
         compose + " -> (" + rules.map {
@@ -88,9 +116,9 @@ object PositionalCarbonMain {
       )
   }
 
-  def updateHtmlPage(content : String) : Unit = {
+  def updateHtmlPage(content : String, rulesForEachMetabolite : ComputeRulesType) : Unit = {
     cleanHtmlPage
-    Try(IsocorManagement.workflow(content.trim,initialData)) match {
+    Try(IsocorManagement.workflow(content.trim,rulesForEachMetabolite)) match {
       case Success(v) => {
         val textContent : String = {
           "Sample\tMetabolite\tIsotope\tMean\tExperiment/Computed\n" +
@@ -104,7 +132,12 @@ object PositionalCarbonMain {
           .getElementById(idMainDiv)
           .append(
             div(
-              a("download C-Positional Enrichments (TSV file)",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
+              h3("Results files to download"),
+              ul(
+                li(
+                  a("C-Positional Enrichments (TSV file)",href:="data:text/tsv;charset=UTF-8,"+encodeURIComponent(textContent))
+                )
+              )
             ).render
           )
 
@@ -168,12 +201,14 @@ object PositionalCarbonMain {
 
           val tag = dom.document.getElementById("isocorInputFile")
           val files = tag.render.asInstanceOf[HTMLInputElement].files
+          val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").innerText
 
           if (files.nonEmpty) {
             val reader = new FileReader();
             reader.onload = (_ : Event) => {
               val content = reader.result.toString
-              updateHtmlPage(content)
+              val rules : ComputeRulesType = parsePositionalEnrichmentDependencies(contentRules)
+              updateHtmlPage(content,rules)
             }
          //   println(s"reading ${files(0).name}")
             reader.readAsText(files(0));
