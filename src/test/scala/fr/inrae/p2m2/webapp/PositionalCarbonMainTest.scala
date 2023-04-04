@@ -2,7 +2,20 @@ package fr.inrae.p2m2.webapp
 
 import utest.{TestSuite, Tests, test}
 
+import scala.concurrent.ExecutionContext
+import scala.scalajs.concurrent.QueueExecutionContext
+
 object PositionalCarbonMainTest extends TestSuite {
+  val exec: ExecutionContext = QueueExecutionContext.timeouts()
+
+  import scalajs.js.Dynamic.{global => g}
+
+  val fs = g.require("fs")
+
+  def readFile(name: String): String = {
+    fs.readFileSync(name).toString
+  }
+
   def tests: Tests = Tests {
     test("textPositionalEnrichmentDependencies empty map") {
       assert(PositionalCarbonMain.textPositionalEnrichmentDependencies(Map()) == "")
@@ -60,6 +73,16 @@ object PositionalCarbonMainTest extends TestSuite {
         )
       )
       assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Malate -> C2C3 -> C2C4, C4") == waitingRes)
+    }
+
+    test("start default main ") {
+      PositionalCarbonMain.main(Array())
+    }
+
+    test("start default main ") {
+      PositionalCarbonMain.main(Array())
+      val content = readFile("src/test/resources/glycine.test.tsv")
+      PositionalCarbonMain.updateHtmlPage(content,Map())
     }
   }
 }

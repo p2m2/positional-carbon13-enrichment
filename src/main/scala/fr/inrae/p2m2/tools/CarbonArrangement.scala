@@ -121,22 +121,6 @@ case object CarbonArrangement {
     }).distinct
   }
 
-
-  /**
-   * iso2 should be > than iso1
-   * compute theoretical mean enrichment between two isocor entries
-   *
-   * @param iso1 first isocor entry
-   * @param iso2 second isocor entry
-   * @return theoretical mean enrichment
-   */
-  def computeDiffMeanEnrichment(iso1: IsocorValue, iso2: IsocorValue): Double =
-    (iso2.weight.toDouble * iso2.meanEnrichment) - (iso1.weight.toDouble * iso1.meanEnrichment)
-
-
-  def computeAddMeanEnrichment(iso1: IsocorValue, iso2: IsocorValue): Double =
-    ((iso2.weight.toDouble * iso2.meanEnrichment) + (iso1.weight.toDouble * iso1.meanEnrichment)) / (iso2.weight + iso1.weight).toDouble
-
   /**
    *
    * @param isos

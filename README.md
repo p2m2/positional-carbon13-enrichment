@@ -30,7 +30,7 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 ### command line
 
 ```shell
-sbt positionalCarbonSourcesJVM/run ./resources/galaxy430_res.tsv
+sbt 
 ```
 
 ### Html
@@ -42,11 +42,13 @@ sbt fastLinkJS
 # open html/index.html
 ```
 
+npm install jsdom --save-dev
+
 #### Release
 
 ```shell 
 sbt fullOptJS
-cp target/scala-2.13/positionalcarbonsources-opt/* docs/
+cp target/scala-2.13/positional-carbon13-enrichment-opt/* docs/
 # open docs/index.html
 ```
 

@@ -12,6 +12,7 @@ import scalatags.JsDom
 import scala.collection.immutable.Map
 import scala.scalajs.js.JSON
 import scala.scalajs.js.URIUtils.encodeURIComponent
+import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
 
@@ -33,11 +34,6 @@ object PositionalCarbonMain {
       "C1C3" -> Seq("C1","C2","C3"),
      )
   )
-
-  val commentInitialData : String =
-    """
-      |
-      |""".stripMargin
 
   val inputTagId : String = "positionInputFile"
   val idMainDiv : String = "positionalCarbonChartCanvas"

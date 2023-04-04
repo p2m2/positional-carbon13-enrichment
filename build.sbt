@@ -57,14 +57,21 @@ lazy val root = (project in file("."))
       "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
       "org.scala-js" %%% "scalajs-dom" % "2.1.0",
       "com.lihaoyi" %%% "scalatags" % "0.12.0",
-      "net.exoego" %%% "scala-js-nodejs-v16" % "0.14.0" % "test",
+      "org.scala-js" %%% "scalajs-dom" % "2.1.0" % "test",
     ),
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
     testFrameworks += new TestFramework("utest.runner.Framework"),
     assembly / target := file("assembly"),
-    assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
+    assembly / assemblyJarName := s"${name.value}-${version.value}.jar",
+    Compile / fastOptJS / scalaJSLinkerConfig ~= {
+      _.withOptimizer(false)
+        .withPrettyPrint(true)
+        .withSourceMap(true)
+    },
+    Compile / fullOptJS / scalaJSLinkerConfig ~= {
+      _.withSourceMap(false)
+    },
+    Compile / scalaJSUseMainModuleInitializer := true,
   )
-// ECMAScript
-scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
-// CommonJS
-scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
