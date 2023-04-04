@@ -16,10 +16,10 @@ ThisBuild / developers := List(
 )
 
 lazy val root = (project in file("."))
-  .aggregate(positionalCarbonSources.js, positionalCarbonSources.jvm)
+  .enablePlugins(ScalaJSPlugin)
   .settings(
     name := "positional-carbon13-enrichment",
-    version := "0.1.0-SNAPSHOT",
+    version := "1.0.0",
     credentials += {
 
       val realm = scala.util.Properties.envOrElse("REALM_CREDENTIAL", "")
@@ -52,48 +52,19 @@ lazy val root = (project in file("."))
     coverageMinimumStmtPerFile := 70,
     coverageMinimumBranchPerFile := 30,
     coverageFailOnMinimum := true,
-    coverageHighlighting := true
-  )
-
-lazy val PositionalCarbon13EnrichmentShared = project.in(file("shared"))
-
-lazy val PositionalCarbon13EnrichmentSharedSettings = Seq(
-  name := "foo",
-  version := "0.1-SNAPSHOT",
-  // NOTE: The following line will generate a warning in IntelliJ IDEA, which can be ignored:
-  // "The following source roots are outside the corresponding base directories"
-  Compile / unmanagedSourceDirectories += ( (PositionalCarbon13EnrichmentShared / Compile) / scalaSource).value
-)
-
-
-lazy val positionalCarbonSources = crossProject(JSPlatform, JVMPlatform).in(file(".")).
-  settings(
-    testFrameworks += new TestFramework("utest.runner.Framework")
-  ).
-  jvmSettings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "utest" % "0.8.1" % Test,
-      "com.github.scopt" %% "scopt" % "4.1.0"
-    ),
-
-   // Compile / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"main"/"scala",
-   // Test / unmanagedSourceDirectories += baseDirectory.value.getParentFile.getParentFile / "shared"/"src"/"test"/"scala",
-
-    Compile / mainClass := Some("fr.inrae.p2m2.app.PositionalCarbon13EnrichmentMain") ,
-    assembly / target := file("assembly"),
-    assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
-  )
-  .enablePlugins(BuildInfoPlugin)
-  .jsSettings(
-    // Add JS-specific settings here
-    scalaJSUseMainModuleInitializer := true,
-    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
+    coverageHighlighting := true,
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
       "org.scala-js" %%% "scalajs-dom" % "2.1.0",
-      "com.lihaoyi" %%% "scalatags" % "0.12.0"
-    )
+      "com.lihaoyi" %%% "scalatags" % "0.12.0",
+      "net.exoego" %%% "scala-js-nodejs-v16" % "0.14.0" % "test",
+    ),
+    testFrameworks += new TestFramework("utest.runner.Framework"),
+    assembly / target := file("assembly"),
+    assembly / assemblyJarName := s"${name.value}-${version.value}.jar"
   )
-
+// ECMAScript
+scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
+// CommonJS
+scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
 Global / onChangedBuildSource := ReloadOnSourceChanges

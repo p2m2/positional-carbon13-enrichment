@@ -46,7 +46,7 @@ sbt fastLinkJS
 
 ```shell 
 sbt fullOptJS
-cp js/target/scala-2.13/positionalcarbonsources-opt/* docs/
+cp target/scala-2.13/positionalcarbonsources-opt/* docs/
 # open docs/index.html
 ```
 

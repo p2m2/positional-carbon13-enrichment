@@ -49,13 +49,13 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
-          name: Compile - JVM
-          command: cat /dev/null | sbt positionalCarbonSourcesJVM/test
+          name: Compile/Tests
+          command: cat /dev/null | sbt test
       - run:
           name: Coverage
           command: |
-            cat /dev/null | sbt clean coverage \
-            positionalCarbonSourcesJVM/Test/test positionalCarbonSourcesJVM/coverageReport
+            cat /dev/null | sbt clean coverage test
+            sbt coverageReport
             bash <(curl -s https://codecov.io/bash)
             bash <(curl -Ls https://coverage.codacy.com/get.sh) report
       - store_artifacts:
