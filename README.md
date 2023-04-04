@@ -42,7 +42,7 @@ sbt fastLinkJS
 # open html/index.html
 ```
 
-npm install jsdom --save-dev
+export NODE_OPTIONS=--openssl-legacy-provider
 
 #### Release
 

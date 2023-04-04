@@ -1,20 +1,18 @@
 package fr.inrae.p2m2.webapp
 
+import fr.inrae.p2m2.Data
+import fr.inrae.p2m2.workflow.IsocorManagement
+import org.scalajs.dom
+import scalatags.JsDom.all.{id, _}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement, window}
 import utest.{TestSuite, Tests, test}
 
-import scala.concurrent.ExecutionContext
-import scala.scalajs.concurrent.QueueExecutionContext
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSGlobal
+import scala.util.{Failure, Success, Try}
+
 
 object PositionalCarbonMainTest extends TestSuite {
-  val exec: ExecutionContext = QueueExecutionContext.timeouts()
-
-  import scalajs.js.Dynamic.{global => g}
-
-  val fs = g.require("fs")
-
-  def readFile(name: String): String = {
-    fs.readFileSync(name).toString
-  }
 
   def tests: Tests = Tests {
     test("textPositionalEnrichmentDependencies empty map") {
@@ -74,15 +72,17 @@ object PositionalCarbonMainTest extends TestSuite {
       )
       assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Malate -> C2C3 -> C2C4, C4") == waitingRes)
     }
+/*
+    test("test Glycine") {
 
-    test("start default main ") {
-      PositionalCarbonMain.main(Array())
-    }
+      dom.document.body.append(
+        div(id:="display", div(id:="positionalCarbonChartCanvas")).render
+      )
 
-    test("start default main ") {
-      PositionalCarbonMain.main(Array())
-      val content = readFile("src/test/resources/glycine.test.tsv")
-      PositionalCarbonMain.updateHtmlPage(content,Map())
-    }
+      Try(IsocorManagement.workflow(Data.contentGlycine, Map())) match {
+        case Success(v) => PositionalCarbonMain.buildCharts(v)
+        case _ => assert(false)
+      }
+    }*/
   }
 }

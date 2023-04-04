@@ -50,10 +50,13 @@ jobs:
             - v1-dependencies-
       - run:
           name: Compile/Tests
-          command: cat /dev/null | sbt test
+          command: |
+            npm install jsdom --save-dev
+            cat /dev/null | sbt test
       - run:
           name: Coverage
           command: |
+            npm install jsdom --save-dev
             cat /dev/null | sbt clean coverage test
             sbt coverageReport
             bash <(curl -s https://codecov.io/bash)
