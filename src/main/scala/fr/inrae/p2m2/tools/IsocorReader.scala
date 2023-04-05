@@ -1,8 +1,5 @@
 package fr.inrae.p2m2.tools
 
-import java.io.File
-import scala.io.Source
-
 case object IsocorReader {
 
   def extractInformatiponMetaboliteName(metabolite: String): Option[(String, Int, Option[Int], String)] = {

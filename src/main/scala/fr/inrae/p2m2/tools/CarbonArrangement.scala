@@ -54,7 +54,7 @@ case object CarbonArrangement {
     //val pattern(firstCarbon) = code
 
     code match {
-      case pattern(firstCarbon, lastCarbon) if (firstCarbon.toInt < lastCarbon.toInt) =>
+      case pattern(firstCarbon, lastCarbon) if firstCarbon.toInt < lastCarbon.toInt =>
         Some(firstCarbon.toInt, lastCarbon.toInt)
       case pattern2(firstCarbon) =>
         Some(firstCarbon.toInt, firstCarbon.toInt)
@@ -78,7 +78,7 @@ case object CarbonArrangement {
    */
   def indexes2code(indexes: Option[(Int, Int)]): Option[String] = indexes match {
     case Some((start, end)) if start > 0 && start == end => Some(s"C$start")
-    case Some((start, end)) if start > 0 && start < end => Some(s"C${start}C${end}")
+    case Some((start, end)) if start > 0 && start < end => Some(s"C${start}C$end")
     case Some((start, end)) if start > end => None
     case _ => None
   }
@@ -97,8 +97,6 @@ case object CarbonArrangement {
    * Get execution plan to build in silico value from experimental and computed fragment value
    * planning("C1C4") => C1 + planning("C2C4")
    *
-   * @param code
-   * @return
    */
   def planningComputedAdditionalValues(code: String): Seq[(String, Seq[String])] = {
     (code2Indexes(code) match {
@@ -121,16 +119,11 @@ case object CarbonArrangement {
     }).distinct
   }
 
-  /**
-   *
-   * @param isos
-   * @return
-   */
   def sumMeanEnrichment(isos: Seq[(Double, Double)], nbCarbon: Double): Double =
     isos.map(iso => iso._1 * iso._2).sum / nbCarbon
 
   def diffMeanEnrichment(isoSum: (Double, Double), isos: Seq[(Double, Double)], nbCarbon: Double): Double =
-    ((isoSum._1 * isoSum._2) - (isos.map(iso => iso._1 * iso._2).sum)) / nbCarbon
+    ((isoSum._1 * isoSum._2) - isos.map(iso => iso._1 * iso._2).sum) / nbCarbon
 
   def fragment(frag1: String, frag2: String): String = (frag1, frag2) match {
     case (frag1, frag2) if frag1.nonEmpty && frag2.nonEmpty => frag1 + "_" + frag2

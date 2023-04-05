@@ -12,11 +12,6 @@ case object ComputeCarbonMeanEnrichment {
     def isEqual(hashcodeComp: String) : Boolean = hashcode == hashcodeComp
   }
 
-  def getMeanAndFragment(l: Map[String, Seq[WorkObject]]): Map[String, Seq[(Double, Seq[String])]] =
-    l.map {
-      case (k, v) => k -> v.map(y => (y.mean, y.fragList))
-    }
-
   def buildPlan(minC: Int, maxC: Int): Seq[(String, Seq[String])]  = {
     minC.to(maxC).flatMap(
       nc1 =>
