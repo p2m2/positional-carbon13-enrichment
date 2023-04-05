@@ -36,15 +36,15 @@ sbt
 #### Development version
 
 ```shell 
-sbt fastLinkJS 
+sbt fastOptJS::webpack
 # open html/index.html
 ```
 
 #### Release
 
 ```shell 
-sbt fullOptJS
-cp target/scala-2.13/positional-carbon13-enrichment-opt/* docs/
+sbt fullOptJS::webpack
+cp target/scala-2.13/scalajs-bundler/main/positional-carbon13-enrichment-opt-bundle.js docs/
 # open docs/index.html
 ```
 

@@ -1,11 +1,11 @@
 package fr.inrae.p2m2.webapp
 
-import fr.inrae.p2m2.workflow.{DataIsocorInput, IsocorManagement, SampleAndMetabolite}
+import fr.inrae.p2m2.workflow.{DataResults, IsocorManagement, SampleAndMetabolite}
 import org.scalajs.dom
 import org.scalajs.dom.html.{Canvas, Input}
 import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement}
 import scalatags.JsDom
-import scalatags.JsDom.all.{id, _}
+import scalatags.JsDom.all._
 
 import scala.scalajs.js.URIUtils.encodeURIComponent
 import scala.util.matching.Regex
@@ -118,9 +118,9 @@ object PositionalCarbonMain {
     }
   }
 
-  def buildCharts(metabolitesWithMe: Map[SampleAndMetabolite, Seq[DataIsocorInput]]) : Unit = {
+  def buildCharts(metabolitesWithMe: Map[SampleAndMetabolite, Seq[DataResults]]) : Unit = {
     metabolitesWithMe
-      .groupBy{ case (sm : SampleAndMetabolite, _ :Seq[DataIsocorInput] ) => sm.sample }
+      .groupBy{ case (sm : SampleAndMetabolite, _ :Seq[DataResults] ) => sm.sample }
       .foreach {
         case (sample, listV) =>
           val idDivSample = s"div_$sample"
@@ -135,7 +135,7 @@ object PositionalCarbonMain {
               )
 
           listV.foreach {
-            case (sm : SampleAndMetabolite, data :Seq[DataIsocorInput]) if data.nonEmpty =>
+            case (sm : SampleAndMetabolite, data :Seq[DataResults]) if data.nonEmpty =>
               val idDiv: String = sample + "_" + sm.metabolite + "_" + "_div"
               val idCanvas: String = sample + "_" + sm.metabolite + "_" + "_canvas"
               val title = sm.metabolite
@@ -167,9 +167,9 @@ object PositionalCarbonMain {
     Try(IsocorManagement.workflow(content.trim,rulesForEachMetabolite)) match {
       case Success(v) =>
         val textContent : String = {
-          "Sample\tMetabolite\tIsotope\tMean\tExperiment/Computed\n" +
+          "Sample\tMetabolite\tPositional enrichment\tMean\tDependencies\n" +
           v.map {
-          case (k,l) => l.map( u => Seq(k.sample,k.metabolite, u.codeFrag, u.mean, u.experimental).mkString("\t") ).mkString("\n")
+          case (k,l) => l.map( u => Seq(k.sample,k.metabolite, u.codeFrag, u.mean, u.predecessors.mkString(",")).mkString("\t") ).mkString("\n")
         }.mkString("\n")
         }
         if (dom.document != null) {

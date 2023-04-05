@@ -14,14 +14,14 @@ case object IsocorManagement {
       case (leftTerm, rightTerms) if rightTerms.contains(toCalculated) =>
        // println("2 == key:", toCalculated, " Plan (leftterm:", leftTerm, " righTerms:", rightTerms, ")   => dependences:", dependencies)
         dependencies.contains(leftTerm) &&
-          (dependencies.filter(_ != leftTerm).sorted == (rightTerms.filter(_ != toCalculated)).sorted)
+          (dependencies.filter(_ != leftTerm).sorted == rightTerms.filter(_ != toCalculated).sorted)
 
       case (_,_) => false
     }
   }
 
   def workflow(isocorContent : String, isotopeToCompute : Map[String,Seq[(String,Seq[String])]] = Map())
-  : Map[SampleAndMetabolite, Seq[DataIsocorInput]] = {
+  : Map[SampleAndMetabolite, Seq[DataResults]] = {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent.replace("\r", "\n"))
 
     listMeanEnrichment
@@ -64,8 +64,8 @@ case object IsocorManagement {
           }.flatMap(x => x._2
             .map {
               case y if y.fragList.exists(_.nonEmpty) =>
-                DataIsocorInput(x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"), y.mean, y.experimental)
-              case y => DataIsocorInput(x._1, y.mean, y.experimental)
+                DataResults(x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"), y.mean, y.experimental,y.predecessor)
+              case y => DataResults(x._1, y.mean, y.experimental,y.predecessor)
             }).toSeq
 
         case (k, _) => println(k," => only 1 value") ;  SampleAndMetabolite(k._1,k._2) ->Seq()
