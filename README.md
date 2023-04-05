@@ -1,8 +1,6 @@
 # Calculations of <sup>13</sup>C-Positional Enrichments
 
 [![p2m2](https://circleci.com/gh/p2m2/positional-carbon13-enrichment.svg?style=shield)](https://app.circleci.com/pipelines/github/p2m2)
-[![codecov](https://codecov.io/gh/p2m2/positional-carbon13-enrichment/branch/develop/graph/badge.svg)](https://codecov.io/gh/p2m2/positional-carbon13-enrichment)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/435ffc5c2a1e40ed9deb031877eda9ce)](https://app.codacy.com/gh/p2m2/positional-carbon13-enrichment/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![web](https://img.shields.io/badge/Web-Online-blue.svg)](https://p2m2.github.io/positional-carbon13-enrichment/)
 [![doi](https://img.shields.io/badge/doi-10.3390/metabo13040466-blue.svg)](https://doi.org/10.3390/metabo13040466)
 
@@ -20,7 +18,7 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 -  [SBT](https://www.scala-sbt.org/)
 -  [Scala](https://www.scala-lang.org/)
 -  [ScalaJS - Node.js with JSDOM](https://www.scala-js.org/doc/project/js-environments.html)
-
+-  [Node.js](https://nodejs.org/en)
 
 ### Dependencies for HTML generation
 
@@ -29,8 +27,10 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 
 ### command line
 
+#### run tests
+
 ```shell
-sbt positionalCarbonSourcesJVM/run ./resources/galaxy430_res.tsv
+sbt test
 ```
 
 ### Html
@@ -38,15 +38,15 @@ sbt positionalCarbonSourcesJVM/run ./resources/galaxy430_res.tsv
 #### Development version
 
 ```shell 
-sbt fastLinkJS 
+sbt fastOptJS::webpack
 # open html/index.html
 ```
 
 #### Release
 
 ```shell 
-sbt fullOptJS
-cp js/target/scala-2.13/positionalcarbonsources-opt/* docs/
+sbt fullOptJS::webpack
+cp target/scala-2.13/scalajs-bundler/main/positional-carbon13-enrichment-opt-bundle.js docs/
 # open docs/index.html
 ```
 

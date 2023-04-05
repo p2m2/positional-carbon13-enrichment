@@ -43,20 +43,25 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - node/install:
+          node-version: '19.6'
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.sbt" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run:
-          name: Compile - JVM
-          command: cat /dev/null | sbt positionalCarbonSourcesJVM/test
-      - run:
-          name: Coverage
+          name: Compile/Tests
           command: |
-            cat /dev/null | sbt clean coverage \
-            positionalCarbonSourcesJVM/Test/test positionalCarbonSourcesJVM/coverageReport
-            bash <(curl -s https://codecov.io/bash)
-            bash <(curl -Ls https://coverage.codacy.com/get.sh) report
-      - store_artifacts:
-            path: positional-carbon13-enrichment/jvm/target/test-reports
+            export NODE_OPTIONS=--openssl-legacy-provider
+            cat /dev/null | sbt test
+#      - run:
+#          name: Coverage
+#          command: |
+#            export NODE_OPTIONS=--openssl-legacy-provider
+#            cat /dev/null | sbt clean coverage test
+#            sbt coverageReport
+#            bash <(curl -s https://codecov.io/bash)
+#            bash <(curl -Ls https://coverage.codacy.com/get.sh) report
+#      - store_artifacts:
+#            path: positional-carbon13-enrichment/jvm/target/test-reports
