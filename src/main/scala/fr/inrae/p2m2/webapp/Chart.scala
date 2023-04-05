@@ -3,10 +3,8 @@ package fr.inrae.p2m2.webapp
 import org.scalajs.dom
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExportTopLevel, JSGlobal}
-import js.JSConverters.{iterableOnceConvertible2JSRichIterableOnce, _}
-import scala.scalajs.js.JSON
-import scala.scalajs.js.Object.{entries, keys}
+import scala.scalajs.js.annotation.JSGlobal
+import js.JSConverters._
 
 /**
  * Documentation Chart.js
