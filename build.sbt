@@ -15,8 +15,15 @@ ThisBuild / developers := List(
   Developer("ofilangi", "Olivier Filangi", "olivier.filangi@inrae.fr",url("https://github.com/ofilangi"))
 )
 
-lazy val root = (project in file("."))
-  .enablePlugins(ScalaJSPlugin)
+lazy val root = (project in file(".")).
+  enablePlugins(ScalaJSPlugin).
+  enablePlugins(ScalaJSBundlerPlugin).
+  // add the `it` configuration
+  configs(IntegrationTest).
+  // add `it` tasks
+  settings(Defaults.itSettings: _*).
+  // add Scala.js-specific settings and tasks to the `it` configuration
+  settings(inConfig(IntegrationTest)(ScalaJSPlugin.testConfigSettings): _*)
   .settings(
     name := "positional-carbon13-enrichment",
     version := "1.0.0",
@@ -45,12 +52,7 @@ lazy val root = (project in file("."))
     publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true),
     pomIncludeRepository := { _ => false },
     publishMavenStyle := true,
-    coverageMinimumStmtTotal := 0,
-    coverageMinimumBranchTotal := 0,
-    coverageMinimumStmtPerPackage := 0,
-    coverageMinimumBranchPerPackage := 0,
-    coverageMinimumStmtPerFile := 0,
-    coverageMinimumBranchPerFile := 0,
+    coverageMinimumStmtTotal := 20,
     coverageFailOnMinimum := false,
     coverageHighlighting := true,
     libraryDependencies ++= Seq(
@@ -68,9 +70,17 @@ lazy val root = (project in file("."))
     },
     Compile / fullOptJS / scalaJSLinkerConfig ~= {
       _.withSourceMap(false)
+        .withModuleKind(ModuleKind.CommonJSModule)
     },
+    webpackBundlingMode := BundlingMode.LibraryAndApplication(),
+    Compile / npmDependencies ++= Seq(
+      "chart" -> "0.1.2",
+    ),
+    Test / npmDevDependencies ++= Seq(
+      "jsdom" -> "21.1.1",
+    ),
     Compile / scalaJSUseMainModuleInitializer := true,
-    Test / jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
+    Test / requireJsDomEnv := true
   )
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
