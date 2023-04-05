@@ -1,8 +1,6 @@
 # Calculations of <sup>13</sup>C-Positional Enrichments
 
 [![p2m2](https://circleci.com/gh/p2m2/positional-carbon13-enrichment.svg?style=shield)](https://app.circleci.com/pipelines/github/p2m2)
-[![codecov](https://codecov.io/gh/p2m2/positional-carbon13-enrichment/branch/develop/graph/badge.svg)](https://codecov.io/gh/p2m2/positional-carbon13-enrichment)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/435ffc5c2a1e40ed9deb031877eda9ce)](https://app.codacy.com/gh/p2m2/positional-carbon13-enrichment/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![web](https://img.shields.io/badge/Web-Online-blue.svg)](https://p2m2.github.io/positional-carbon13-enrichment/)
 [![doi](https://img.shields.io/badge/doi-10.3390/metabo13040466-blue.svg)](https://doi.org/10.3390/metabo13040466)
 

@@ -55,13 +55,13 @@ jobs:
           command: |
             export NODE_OPTIONS=--openssl-legacy-provider
             cat /dev/null | sbt test
-      - run:
-          name: Coverage
-          command: |
-            export NODE_OPTIONS=--openssl-legacy-provider
-            cat /dev/null | sbt clean coverage test
-            sbt coverageReport
-            bash <(curl -s https://codecov.io/bash)
-            bash <(curl -Ls https://coverage.codacy.com/get.sh) report
-      - store_artifacts:
-            path: positional-carbon13-enrichment/jvm/target/test-reports
+#      - run:
+#          name: Coverage
+#          command: |
+#            export NODE_OPTIONS=--openssl-legacy-provider
+#            cat /dev/null | sbt clean coverage test
+#            sbt coverageReport
+#            bash <(curl -s https://codecov.io/bash)
+#            bash <(curl -Ls https://coverage.codacy.com/get.sh) report
+#      - store_artifacts:
+#            path: positional-carbon13-enrichment/jvm/target/test-reports

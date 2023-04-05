@@ -57,7 +57,6 @@ lazy val root = (project in file(".")).
     coverageHighlighting := true,
     libraryDependencies ++= Seq(
       "com.lihaoyi" %%% "utest" % "0.8.1" % Test,
-      "org.scala-js" %%% "scalajs-dom" % "2.1.0" % Test,
       "com.lihaoyi" %%% "scalatags" % "0.12.0",
     ),
     testFrameworks += new TestFramework("utest.runner.Framework"),
@@ -77,7 +76,7 @@ lazy val root = (project in file(".")).
       "chart" -> "0.1.2",
     ),
     Test / npmDevDependencies ++= Seq(
-      "jsdom" -> "21.1.1",
+      "jsdom" -> "21.1.1"
     ),
     Compile / scalaJSUseMainModuleInitializer := true,
     Test / requireJsDomEnv := true
