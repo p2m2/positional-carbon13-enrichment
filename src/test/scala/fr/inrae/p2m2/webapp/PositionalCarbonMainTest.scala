@@ -1,16 +1,5 @@
 package fr.inrae.p2m2.webapp
-
-import fr.inrae.p2m2.Data
-import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom
-import scalatags.JsDom.all.{id, _}
-import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement, window}
 import utest.{TestSuite, Tests, test}
-
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSGlobal
-import scala.util.{Failure, Success, Try}
-
 
 object PositionalCarbonMainTest extends TestSuite {
 
@@ -72,17 +61,16 @@ object PositionalCarbonMainTest extends TestSuite {
       )
       assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Malate -> C2C3 -> C2C4, C4") == waitingRes)
     }
-/*
-    test("test Glycine") {
 
-      dom.document.body.append(
-        div(id:="display", div(id:="positionalCarbonChartCanvas")).render
+    test("Serine -> C1C3 -> C1, C2, C3") {
+      val waitingRes = Map(
+        "Serine" -> Seq(
+          "C1C3" -> Seq("C1", "C2","C3")
+        )
       )
+      println(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Serine -> C1C3 -> C1, C2, C3"))
+      assert(PositionalCarbonMain.parsePositionalEnrichmentDependencies("Serine -> C1C3 -> C1, C2, C3") == waitingRes)
 
-      Try(IsocorManagement.workflow(Data.contentGlycine, Map())) match {
-        case Success(v) => PositionalCarbonMain.buildCharts(v)
-        case _ => assert(false)
-      }
-    }*/
+    }
   }
 }

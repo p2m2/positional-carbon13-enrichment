@@ -18,7 +18,7 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 -  [SBT](https://www.scala-sbt.org/)
 -  [Scala](https://www.scala-lang.org/)
 -  [ScalaJS - Node.js with JSDOM](https://www.scala-js.org/doc/project/js-environments.html)
-
+-  [Node.js](https://nodejs.org/en)
 
 ### Dependencies for HTML generation
 
@@ -27,8 +27,10 @@ For a precise description of the method, refer to the publication [*"Evaluation 
 
 ### command line
 
+#### run tests
+
 ```shell
-sbt 
+sbt test
 ```
 
 ### Html

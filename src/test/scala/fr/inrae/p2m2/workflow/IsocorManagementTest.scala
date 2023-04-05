@@ -5,9 +5,6 @@ import utest.{TestSuite, Tests, test}
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.concurrent.QueueExecutionContext
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSImport
-
 
 object IsocorManagementTest extends TestSuite {
   val exec: ExecutionContext = QueueExecutionContext.timeouts()
@@ -16,7 +13,6 @@ object IsocorManagementTest extends TestSuite {
     test("run process galaxy file") {
       IsocorReader.getMeanEnrichmentByFragment(Data.contentGlycine)
       IsocorManagement.workflow(Data.contentGlycine)
-
     }
   }
 }

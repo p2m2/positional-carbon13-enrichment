@@ -56,6 +56,13 @@
         - https://doi.org/10.3390/metabo13040466<sup>13</sup>C-Labeled Experiments"</i></a>
     </p>
 
+      <h2>Metabolite name format</h2>
+      <p>The name of the metabolite must follow the format <b>NAME-Cx&#60;C&#62;&#60;y&#60;&#60;fragment&#62;</b>
+      or <b>NAME-Cx&#60;C&#62;fragment&#62;</b></p>
+      <pre>
+        sample	metabolite	derivative	isotopologue	isotopic_inchi	area	corrected_area	isotopologue_fraction	residuum	mean_enrichment
+        Prot13C_1_16	<b>GlycineC2m174</b>	2TMS	0	/a(C1+0)	410680.0	518131.0969722705	0.5205891530191978	0.0	0.47941084698080205
+      </pre>
     <h2>Calculation rules</h2>
       <p style="color:blue;text-align:center">
       <i>The rules must follow the following form (The isotope A is built from the Metabolite B,C,D ...).
@@ -79,7 +86,7 @@
   <br/>
   </div>
     <!-- Include Scala.js compiled code -->
-    <script type="text/javascript" src="../target/scala-2.13/scalajs-bundler/main/positional-carbon13-enrichment-fastopt-bundle.js"></script>
+    <script type="text/javascript" src="../target/scala-2.13/positional-carbon13-enrichment-fastopt/main.js"></script>
   </body>
     <footer>
       <a href="https://www6.inrae.fr/p2m2" target="_blank"><img src="p2m2.png" width="120"></a>

@@ -43,23 +43,23 @@ object PositionalCarbonMain {
       .replace("\n","")
   def parsePositionalEnrichmentDependencies(s : String) : ComputeRulesType = {
 
-    val sep1 = "\\s*->\\s*"
-
-    val keyValPattern: Regex = s"([\\da-zA-Z]+)$sep1\\s*([C\\d]+)$sep1([C\\d]+)\\s*(,\\s*[C\\d]+\\s*)?".r
-
-    keyValPattern.findAllMatchIn(s).toSeq.flatMap {
+    val keyValPattern: Regex = "([\\da-zA-Z]+)->\\s*([C\\d]+)->([C\\d,]+)".r
+    val keyValPattern2: Regex = "([C\\d]+)".r
+    val cleanS = s.replace(" ","").trim
+    keyValPattern.findAllMatchIn(cleanS).toSeq.flatMap {
       case data : Regex.Match if data.groupCount>2 =>
         // 1 -> Metabolite
         // 2 -> Isotope to compute
         // 3..n -> Dependencies
-        //  println(data.groupCount)
-        //   println("*"+data.group(3)+"*")
-        //   println("*"+data.group(4)+"*")
-        Some(clean(data.group(1)) ->
-          Seq( clean(data.group(2)) -> 3.to(data.groupCount)
-          .map(a => clean(data.group(a)))))
-        // println(group.mkString(","))
-      //println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
+        //println(data.groupCount)
+        //println("*"+data.group(3)+"*")
+
+        Some(clean(data.group(1)) -> Seq(
+          clean(data.group(2)) -> keyValPattern2.findAllMatchIn(data.group(3)).toSeq.flatMap {
+          case data2: Regex.Match => Some(clean(data2.group(1)))
+          case _ => None
+        }))
+
       case data : Regex.Match =>
         System.err.println(s"Can not parse ${data.source}")
         None
