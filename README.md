@@ -40,9 +40,6 @@ sbt fastLinkJS
 # open html/index.html
 ```
 
-export NODE_OPTIONS=--openssl-legacy-provider
-
-
 #### Release
 
 ```shell 

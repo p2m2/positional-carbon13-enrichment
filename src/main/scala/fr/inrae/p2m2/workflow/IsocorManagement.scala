@@ -21,8 +21,7 @@ case object IsocorManagement {
   }
 
   def workflow(isocorContent : String, isotopeToCompute : Map[String,Seq[(String,Seq[String])]] = Map())
-  //     SAMPLE/METABOLITE    CODE_FRAG, MEAN_ENR, EXPERIMENTAL
-  : Map[(String,String), Seq[(String,Double,Boolean)]] = {
+  : Map[SampleAndMetabolite, Seq[DataIsocorInput]] = {
     val listMeanEnrichment = IsocorReader.getMeanEnrichmentByFragment(isocorContent.replace("\r", "\n"))
 
     listMeanEnrichment
@@ -45,7 +44,7 @@ case object IsocorManagement {
 
           val metabolite = k._2
 
-          k -> {
+          SampleAndMetabolite(k._1,k._2) -> {
             if(!isotopeToCompute.contains(metabolite)) {
 
               System.err.println(s"$metabolite have not desired isotope to compute. Try to search new isotope to infer")
@@ -64,14 +63,12 @@ case object IsocorManagement {
             }
           }.flatMap(x => x._2
             .map {
-              case y if y.fragList.exists(_.nonEmpty) => (x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"), y.mean, y.experimental)
-              case y => (x._1, y.mean, y.experimental)
+              case y if y.fragList.exists(_.nonEmpty) =>
+                DataIsocorInput(x._1 + "_" + y.fragList.filter(_.nonEmpty).mkString("_"), y.mean, y.experimental)
+              case y => DataIsocorInput(x._1, y.mean, y.experimental)
             }).toSeq
-          //val res = ComputeCarbonMeanEnrichment.computeValues(r, p)
-          //for (elem <- ComputeCarbonMeanEnrichment.computeValues(r, p)) {println(elem._2)}
 
-
-        case (k, _) => println(k," => only 1 value") ;  k ->Seq()
+        case (k, _) => println(k," => only 1 value") ;  SampleAndMetabolite(k._1,k._2) ->Seq()
       }
     }
 

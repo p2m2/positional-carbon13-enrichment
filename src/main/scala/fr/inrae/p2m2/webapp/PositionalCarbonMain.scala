@@ -1,20 +1,15 @@
 package fr.inrae.p2m2.webapp
 
-import scala.scalajs.js
+import fr.inrae.p2m2.workflow.{DataIsocorInput, IsocorManagement, SampleAndMetabolite}
 import org.scalajs.dom
-import scalatags.JsDom.all.{id, _}
-import fr.inrae.p2m2.workflow.IsocorManagement
-import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement, window}
-import org.scalajs.dom.html.{Canvas, Element, Input}
-import org.scalajs.dom.window.alert
+import org.scalajs.dom.html.{Canvas, Input}
+import org.scalajs.dom.{Event, FileReader, HTMLInputElement, HTMLTextAreaElement}
 import scalatags.JsDom
+import scalatags.JsDom.all.{id, _}
 
-import scala.collection.immutable.Map
-import scala.scalajs.js.JSON
 import scala.scalajs.js.URIUtils.encodeURIComponent
-import scala.scalajs.js.annotation.JSExportTopLevel
-import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 
 object PositionalCarbonMain {
 
@@ -53,20 +48,19 @@ object PositionalCarbonMain {
     val keyValPattern: Regex = s"([\\da-zA-Z]+)$sep1\\s*([C\\d]+)$sep1([C\\d]+)\\s*(,\\s*[C\\d]+\\s*)?".r
 
     keyValPattern.findAllMatchIn(s).toSeq.flatMap {
-      case (data : Regex.Match) if data.groupCount>2 => {
+      case data : Regex.Match if data.groupCount>2 =>
         // 1 -> Metabolite
         // 2 -> Isotope to compute
         // 3..n -> Dependencies
-     //  println(data.groupCount)
-     //   println("*"+data.group(3)+"*")
-     //   println("*"+data.group(4)+"*")
+        //  println(data.groupCount)
+        //   println("*"+data.group(3)+"*")
+        //   println("*"+data.group(4)+"*")
         Some(clean(data.group(1)) ->
-          (Seq( clean(data.group(2)) -> 3.to(data.groupCount)
-          .map(a => clean(data.group(a))))))
+          Seq( clean(data.group(2)) -> 3.to(data.groupCount)
+          .map(a => clean(data.group(a)))))
         // println(group.mkString(","))
-      }
       //println(s"key: *${patternMatch.group(1)}* value: *${patternMatch.group(2)}* ${patternMatch.groupCount}")
-      case (data : Regex.Match) =>
+      case data : Regex.Match =>
         System.err.println(s"Can not parse ${data.source}")
         None
     }
@@ -76,7 +70,7 @@ object PositionalCarbonMain {
       }
   }
 
-  def textPositionalEnrichmentDependencies( m : ComputeRulesType) : String = {
+  def textPositionalEnrichmentDependencies(m : ComputeRulesType) : String = {
     m.map {
       case (compose : String, rules : Seq[(String,Seq[String])] ) =>
          rules.map {
@@ -102,7 +96,7 @@ object PositionalCarbonMain {
           .render)
     }
 
-  def setPositionalEnrichmentDependencies(s : String) = {
+  def setPositionalEnrichmentDependencies(s : String): Unit = {
     dom
       .document
       .getElementById("positionalEnrichmentDependencies")
@@ -124,11 +118,11 @@ object PositionalCarbonMain {
     }
   }
 
-  def buildCharts(metabolites_with_me: Map[(String, String), Seq[(String, Double, Boolean)]]) : Unit = {
-    metabolites_with_me
-      .groupBy(_._1._1)
+  def buildCharts(metabolitesWithMe: Map[SampleAndMetabolite, Seq[DataIsocorInput]]) : Unit = {
+    metabolitesWithMe
+      .groupBy{ case (sm : SampleAndMetabolite, _ :Seq[DataIsocorInput] ) => sm.sample }
       .foreach {
-        case ((sample, listV)) =>
+        case (sample, listV) =>
           val idDivSample = s"div_$sample"
             dom
               .document
@@ -141,16 +135,16 @@ object PositionalCarbonMain {
               )
 
           listV.foreach {
-            case ((sample, metabolite), data) if data.nonEmpty =>
-              val idDiv: String = sample + "_" + metabolite + "_" + "_div"
-              val idCanvas: String = sample + "_" + metabolite + "_" + "_canvas"
-              val title = metabolite
+            case (sm : SampleAndMetabolite, data :Seq[DataIsocorInput]) if data.nonEmpty =>
+              val idDiv: String = sample + "_" + sm.metabolite + "_" + "_div"
+              val idCanvas: String = sample + "_" + sm.metabolite + "_" + "_canvas"
+              val title = sm.metabolite
 
-              val values_exp = data.filter(_._3).map(_._2)
-              val labels_exp = data.filter(_._3).map(_._1)
+              val values_exp = data.filter(_.experimental).map(_.mean)
+              val labels_exp = data.filter(_.experimental).map(_.codeFrag)
 
-              val values_calc = data.filter(!_._3).map(_._2)
-              val labels_calc = data.filter(!_._3).map(_._1)
+              val values_calc = data.filter(!_.experimental).map(_.mean)
+              val labels_calc = data.filter(!_.experimental).map(_.codeFrag)
 
               appendCanvas(idDivSample, idDiv, idCanvas)
 
@@ -165,7 +159,7 @@ object PositionalCarbonMain {
   }
 
   def updateHtmlPage(content : String, rulesForEachMetabolite : ComputeRulesType) : Unit = {
-    cleanHtmlPage
+    cleanHtmlPage()
 
     println("==== rules =====")
     println(rulesForEachMetabolite)
@@ -175,7 +169,7 @@ object PositionalCarbonMain {
         val textContent : String = {
           "Sample\tMetabolite\tIsotope\tMean\tExperiment/Computed\n" +
           v.map {
-          case (k,l) => l.map( u => Seq(k._1,k._2, u._1, u._2, u._3).mkString("\t") ).mkString("\n")
+          case (k,l) => l.map( u => Seq(k.sample,k.metabolite, u.codeFrag, u.mean, u.experimental).mkString("\t") ).mkString("\n")
         }.mkString("\n")
         }
         if (dom.document != null) {
@@ -221,14 +215,14 @@ object PositionalCarbonMain {
           val contentRules = dom.document.getElementById("positionalEnrichmentDependencies").asInstanceOf[HTMLTextAreaElement].value
           //alert(contentRules)
           if (files.nonEmpty) {
-            val reader = new FileReader();
+            val reader = new FileReader()
             reader.onload = (_ : Event) => {
               val content = reader.result.toString
               val rules : ComputeRulesType = parsePositionalEnrichmentDependencies(contentRules)
               updateHtmlPage(content,rules)
             }
          //   println(s"reading ${files(0).name}")
-            reader.readAsText(files(0));
+            reader.readAsText(files(0))
           }
 
       }
